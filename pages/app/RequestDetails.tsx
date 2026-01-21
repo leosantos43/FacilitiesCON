@@ -76,7 +76,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
     setActionLoading(true);
     try {
       const compressed = await Promise.all(
-        Array.from(files).map(f => compressImage(f, 800, 0.7))
+        Array.from(files).map(f => compressImage(f as File, 800, 0.7))
       );
       if (type === 'before') setPhotosBefore(prev => [...prev, ...compressed].slice(0, 3));
       else setPhotosAfter(prev => [...prev, ...compressed].slice(0, 3));
@@ -150,7 +150,9 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
   const printVoucher = (e: React.MouseEvent) => {
      e.preventDefault();
      e.stopPropagation();
-     window.print();
+     setTimeout(() => {
+        window.print();
+     }, 100);
   };
 
   if (loading) return <div className="p-24 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></div>;
@@ -160,22 +162,33 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                      (isSyndic && !request.is_private) ||
                      (isAdmin);
 
+  const creationDate = new Date(request.created_at).toLocaleDateString('pt-BR');
+  const completionDate = request.status === RequestStatus.COMPLETED ? new Date(request.updated_at).toLocaleDateString('pt-BR') : null;
+
   return (
     <div className="max-w-7xl mx-auto pb-20 px-4 md:px-0 animate-in fade-in duration-700">
       
       <style>{`
         @media print {
           @page { margin: 1.5cm; size: A4; }
+          html, body, #root, .flex-1, main, .overflow-y-auto { 
+            overflow: visible !important; 
+            height: auto !important; 
+            min-height: auto !important;
+            position: static !important;
+          }
           body { background: white !important; -webkit-print-color-adjust: exact; }
-          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer { display: none !important; }
+          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer { 
+            display: none !important; 
+          }
           .max-w-7xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
           .print-header { display: flex !important; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-          .print-visible { display: block !important; }
           .rounded-[3.5rem] { border-radius: 1.5rem !important; border: 1px solid #eee !important; box-shadow: none !important; }
           .shadow-premium, .shadow-sm { box-shadow: none !important; }
           .bg-slate-50 { background-color: #f8fafc !important; }
           .text-brand-blue { color: #0F172A !important; }
           .text-brand-accent { color: #38BDF8 !important; }
+          .laudo-border { border: 2px solid #e2e8f0 !important; border-radius: 1rem !important; padding: 2rem !important; }
         }
       `}</style>
 
@@ -183,7 +196,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
       <div className="hidden print:block print-header">
          <div className="flex justify-between items-start w-full">
             <div>
-               <h1 className="text-4xl font-black text-brand-blue uppercase tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
+               <h1 className="text-4xl font-black text-brand-blue uppercase tracking-tighter">JLM <span className="text-brand-accent">Facilities</span></h1>
                <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Relatório Técnico de Engenharia</p>
                <div className="mt-6 text-[10px] text-slate-400 leading-relaxed font-bold uppercase space-y-1">
                   <p>{company?.company_name} • CNPJ: {company?.cnpj}</p>
@@ -252,14 +265,26 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
 
           {/* LAUDO TÉCNICO DE CONCLUSÃO */}
           {request.status === RequestStatus.COMPLETED && (
-            <div className="bg-white border-2 border-emerald-100 p-8 md:p-14 rounded-[3.5rem] shadow-premium print:border-none print:p-0 print:shadow-none">
-               <div className="flex items-center gap-4 mb-8 print:mb-12">
-                  <div className="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg print:hidden">
-                     <Icons.ShieldCheck size={32} />
+            <div className="bg-white border-2 border-emerald-100 p-8 md:p-14 rounded-[3.5rem] shadow-premium laudo-border print:shadow-none">
+               <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12 border-b border-slate-100 pb-10 print:mb-14">
+                  <div className="flex items-center gap-4">
+                     <div className="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg print:hidden">
+                        <Icons.ShieldCheck size={32} />
+                     </div>
+                     <div>
+                        <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight leading-none">Laudo de Conclusão</h2>
+                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Serviço Certificado & Homologado</p>
+                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight leading-none">Laudo de Conclusão</h2>
-                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Serviço Certificado & Homologado</p>
+                  <div className="flex flex-wrap gap-6">
+                     <div className="bg-slate-50 px-5 py-3 rounded-xl border border-slate-100">
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Início</p>
+                        <p className="text-xs font-black text-slate-700">{creationDate}</p>
+                     </div>
+                     <div className="bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-100">
+                        <p className="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">Conclusão</p>
+                        <p className="text-xs font-black text-emerald-700">{completionDate}</p>
+                     </div>
                   </div>
                </div>
                
@@ -282,9 +307,6 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                               <img src={img} className="w-full h-full object-cover" />
                            </div>
                         ))}
-                        {(!request.photos_before || request.photos_before.length === 0) && (
-                           <div className="col-span-3 py-8 text-center bg-slate-50 rounded-2xl text-[8px] font-black uppercase text-slate-300">Nenhum registro</div>
-                        )}
                      </div>
                   </div>
                   <div className="space-y-4">
@@ -297,9 +319,6 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                               <img src={img} className="w-full h-full object-cover" />
                            </div>
                         ))}
-                        {(!request.photos_after || request.photos_after.length === 0) && (
-                           <div className="col-span-3 py-8 text-center bg-slate-50 rounded-2xl text-[8px] font-black uppercase text-slate-300">Nenhum registro</div>
-                        )}
                      </div>
                   </div>
                </div>
@@ -309,7 +328,10 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                      <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 print:hidden">
                         <Icons.CheckCircle size={24} />
                      </div>
-                     <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Garantia FacilitiesCON: 3 meses</p>
+                     <div>
+                        <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Garantia JLM Facilities: 3 meses</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Certificado de integridade técnica</p>
+                     </div>
                   </div>
                   <button onClick={printVoucher} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-black transition-all flex items-center gap-2 print:hidden no-print">
                      <Icons.Download size={16} /> Baixar Laudo Completo (PDF)

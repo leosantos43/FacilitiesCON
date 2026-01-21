@@ -1,5 +1,4 @@
 
-// Adicionando importação do React para resolver erro de namespace
 import React, { useEffect, useState } from 'react';
 import { db } from '../../services/mockSupabase';
 import { ServiceRequest, RequestStatus, Priority } from '../../types';
@@ -80,15 +79,16 @@ const AdminRequests: React.FC = () => {
                 <th className="px-8 py-6">Identificação / Localização</th>
                 <th className="px-8 py-6">Atendimento</th>
                 <th className="px-8 py-6">Prioridade</th>
-                <th className="px-8 py-6">Status / Investimento</th>
+                <th className="px-8 py-6">Status / Atualização</th>
+                <th className="px-8 py-6">Investimento</th>
                 <th className="px-8 py-6 text-right">Ação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
               {loading ? (
-                <tr><td colSpan={5} className="px-8 py-20 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></td></tr>
+                <tr><td colSpan={6} className="px-8 py-20 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={5} className="px-8 py-20 text-center font-black uppercase text-slate-400 italic">Nenhum chamado localizado.</td></tr>
+                <tr><td colSpan={6} className="px-8 py-20 text-center font-black uppercase text-slate-400 italic">Nenhum chamado localizado.</td></tr>
               ) : (
                 filtered.map(r => (
                   <tr key={r.id} className="hover:bg-slate-50/50 cursor-pointer group transition-colors" onClick={() => navigate(`/admin/request/${r.id}`)}>
@@ -97,9 +97,6 @@ const AdminRequests: React.FC = () => {
                       <div className="flex flex-col gap-1">
                         <p className="text-[10px] text-slate-900 font-black uppercase tracking-tight flex items-center gap-1.5">
                           <Icons.Building size={12} className="text-brand-accent" /> {r.condo_name}
-                        </p>
-                        <p className="text-[9px] text-slate-400 font-bold flex items-center gap-1.5 truncate max-w-xs">
-                          <Icons.MapPin size={10} className="text-brand-accent" /> {r.condo_address || 'Pendente de validação'}
                         </p>
                       </div>
                     </td>
@@ -119,12 +116,20 @@ const AdminRequests: React.FC = () => {
                         <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm transition-colors duration-500 w-fit ${getStatusColor(r.status)}`}>
                           {r.status}
                         </span>
-                        {r.budget_value && r.status !== RequestStatus.PENDING_APPROVAL && (
-                          <span className="text-[10px] font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 w-fit">
+                        <span className="text-[9px] font-black text-slate-400 uppercase flex items-center gap-1 ml-1">
+                           <Icons.Clock size={10} className="text-brand-accent" />
+                           {new Date(r.updated_at).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-6">
+                        {r.budget_value ? (
+                          <span className="text-xs font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
                              R$ {r.budget_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </span>
+                        ) : (
+                          <span className="text-[10px] font-black text-slate-300 uppercase italic">Pendente</span>
                         )}
-                      </div>
                     </td>
                     <td className="px-8 py-6 text-right">
                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-brand-blue group-hover:text-white transition-all border border-slate-100">

@@ -113,7 +113,7 @@ class ManualDatabaseAuthService {
 
   async validateUser(userId: string): Promise<void> {
     await this.updateUser(userId, { is_validated: true });
-    await this.createNotification(userId, 'Cadastro Validado!', 'Seu acesso ao Portal FacilitiesCON foi liberado. Seja bem-vindo!', '/');
+    await this.createNotification(userId, 'Cadastro Validado!', 'Seu acesso ao Portal JLM Facilities foi liberado. Seja bem-vindo!', '/');
   }
 
   async deleteUser(userId: string): Promise<void> {
@@ -141,7 +141,7 @@ class ManualDatabaseAuthService {
   }
 
   async createServiceRequest(requestData: any, user: User): Promise<void> {
-    const protocol = `FCON-${Math.floor(100000 + Math.random() * 900000)}`;
+    const protocol = `JLM-${Math.floor(100000 + Math.random() * 900000)}`;
     const { data, error } = await supabase.from('service_requests').insert([{
       ...requestData,
       protocol,
@@ -215,7 +215,7 @@ class ManualDatabaseAuthService {
       } else {
         // Se quem mandou foi admin, avisa o solicitante
         if (request.requester_id && request.requester_id !== user.id) {
-           await this.createNotification(request.requester_id, 'Mensagem da Gestão', `A FacilitiesCON enviou uma mensagem sobre o seu chamado #${request.protocol}.`, `/app/request/${requestId}`);
+           await this.createNotification(request.requester_id, 'Mensagem da Gestão', `A JLM Facilities enviou uma mensagem sobre o seu chamado #${request.protocol}.`, `/app/request/${requestId}`);
         }
       }
     }
@@ -299,11 +299,11 @@ class ManualDatabaseAuthService {
     
     const defaultSettings: CompanySettings = {
       id: 'default',
-      company_name: 'FacilitiesCON Engenharia Ltda',
+      company_name: 'JLM Facilities & Engenharia',
       cnpj: '00.000.000/0001-00',
-      address: 'Av. Paulista, 1000 - São Paulo, SP',
+      address: 'São Paulo, SP',
       phone: '(11) 98888-7777',
-      email: 'operacional@facilitiescon.com.br'
+      email: 'operacional@jlmfacilities.com.br'
     };
     return defaultSettings;
   }

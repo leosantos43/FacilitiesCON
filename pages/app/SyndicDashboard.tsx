@@ -1,5 +1,4 @@
 
-// Adicionando importação do React para resolver erro de namespace
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, ServiceRequest, RequestStatus } from '../../types';
@@ -85,7 +84,8 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
                 <tr>
                   <th className="px-8 py-6">Protocolo</th>
                   <th className="px-8 py-6">Local e Serviço</th>
-                  <th className="px-8 py-6">Status / Investimento</th>
+                  <th className="px-8 py-6">Status / Data</th>
+                  <th className="px-8 py-6">Investimento</th>
                   <th className="px-8 py-6 text-right">Ação</th>
                 </tr>
               </thead>
@@ -98,7 +98,7 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
                           <p className="font-black text-slate-900 text-sm mb-1">{req.type}</p>
                           <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider flex items-center gap-1.5">
                             <Icons.MapPin size={10} className="text-brand-accent" /> 
-                            {req.unit_info ? `Unidade ${req.unit_info}` : 'Área Comum'} • {req.condo_address || 'Endereço em atualização'}
+                            {req.unit_info ? `Unidade ${req.unit_info}` : 'Área Comum'}
                           </p>
                        </div>
                     </td>
@@ -111,11 +111,20 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
                           }`}>
                             {req.status}
                           </span>
-                          {req.budget_value && (req.status !== RequestStatus.PENDING_APPROVAL) && (
-                            <span className="text-[10px] font-black text-slate-900 flex items-center gap-1 bg-slate-50 w-fit px-2 py-1 rounded-lg border border-slate-100">
-                               <Icons.CheckCircle size={10} className="text-brand-green" />
+                          <span className="text-[9px] font-black text-slate-400 uppercase flex items-center gap-1">
+                             <Icons.Calendar size={10} className="text-brand-accent" />
+                             {new Date(req.status === RequestStatus.COMPLETED ? req.updated_at : req.created_at).toLocaleDateString('pt-BR')}
+                          </span>
+                       </div>
+                    </td>
+                    <td className="px-8 py-6">
+                       <div className="flex flex-col">
+                          {req.budget_value ? (
+                            <span className="text-xs font-black text-slate-900 flex items-center gap-1">
                                R$ {req.budget_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </span>
+                          ) : (
+                            <span className="text-[9px] font-black text-slate-300 uppercase italic">Em análise</span>
                           )}
                        </div>
                     </td>
