@@ -29,7 +29,7 @@ export const PublicLayout: React.FC<LayoutProps> = ({ children }) => {
               <Icons.Building size={24} />
             </div>
             <span className="text-2xl font-black font-heading tracking-tighter text-white">
-              JLM <span className="text-brand-accent">Facilities</span>
+              Facilities<span className="text-brand-accent">CON</span>
             </span>
           </Link>
 
@@ -154,7 +154,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
         <div className="h-28 flex items-center px-10 border-b border-white/5">
            <div className="flex items-center gap-4">
              <div className="bg-brand-accent p-3 rounded-2xl shadow-glow"><Icons.Building size={20} className="text-brand-blue" /></div>
-             <span className="text-xl font-black font-heading tracking-tighter">JLM <span className="text-brand-accent">Facilities</span></span>
+             <span className="text-xl font-black font-heading tracking-tighter">Facilities<span className="text-brand-accent">CON</span></span>
            </div>
         </div>
         <nav className="flex-1 py-10 px-6 space-y-1 overflow-y-auto custom-scrollbar">
@@ -180,7 +180,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
              <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-4 bg-slate-50 rounded-2xl text-brand-blue"><Icons.Menu size={28} /></button>
              <div className="flex flex-col">
                 <h2 className="font-black text-slate-900 uppercase text-[11px] tracking-[0.3em]">{user?.condo_name || 'Central Operacional'}</h2>
-                <p className="text-[9px] text-brand-accent font-black uppercase tracking-widest">Painel JLM Facilities</p>
+                <p className="text-[9px] text-brand-accent font-black uppercase tracking-widest">Painel FacilitiesCON</p>
              </div>
           </div>
           

@@ -40,7 +40,7 @@ const Home: React.FC = () => {
           <img 
              src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop" 
              className="w-full h-full object-cover opacity-10 grayscale scale-110"
-             alt="JLM Facilities"
+             alt="FacilitiesCON"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-brand-dark/95 via-brand-dark/80 to-brand-dark"></div>
           <div className="absolute inset-0 noise-overlay"></div>
@@ -48,7 +48,7 @@ const Home: React.FC = () => {
 
         <div className="container mx-auto relative z-10 text-center space-y-12 animate-slide-up">
           <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-brand-accent/10 border border-brand-accent/30 text-brand-accent text-[11px] font-black uppercase tracking-[0.4em] backdrop-blur-xl mx-auto">
-            <Icons.Zap size={14} /> JLM Facilities & Engenharia
+            <Icons.Zap size={14} /> FacilitiesCON & Engenharia
           </div>
           
           <h1 className="text-6xl sm:text-7xl md:text-8xl xl:text-9xl font-black font-heading leading-[0.9] tracking-tighter text-white">
@@ -58,7 +58,7 @@ const Home: React.FC = () => {
           </h1>
           
           <p className="text-lg md:text-2xl text-slate-400 max-w-4xl mx-auto leading-relaxed font-medium px-4">
-            A união entre manutenção preventiva de alto nível e transparência digital absoluta. A JLM é a parceira estratégica do síndico moderno.
+            A união entre manutenção preventiva de alto nível e transparência digital absoluta. A FacilitiesCON é a parceira estratégica do síndico moderno.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center pt-8 px-4">
@@ -100,7 +100,7 @@ const Home: React.FC = () => {
              <h2 className="text-[11px] font-black text-brand-accent uppercase tracking-[0.5em] mb-4">Portfólio de Serviços</h2>
              <h3 className="text-4xl md:text-7xl font-black text-brand-blue font-heading tracking-tighter leading-none italic">Nossas Verticais <br/>Especialistas.</h3>
              <p className="mt-8 text-slate-500 font-medium text-lg leading-relaxed">
-               Cada serviço é executado por técnicos homologados, seguindo rigorosos protocolos de segurança e qualidade certificados pela JLM Facilities.
+               Cada serviço é executado por técnicos homologados, seguindo rigorosos protocolos de segurança e qualidade certificados pela FacilitiesCON.
              </p>
           </div>
           
@@ -149,7 +149,7 @@ const Home: React.FC = () => {
                    <h3 className="text-4xl md:text-6xl font-black text-brand-blue font-heading tracking-tighter leading-none">O Laudo Técnico <br/>no seu celular.</h3>
                 </div>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                  Esqueça as planilhas confusas. Na JLM, cada atendimento gera um laudo fotográfico detalhado com geolocalização e assinatura técnica do engenheiro.
+                  Esqueça as planilhas confusas. Na FacilitiesCON, cada atendimento gera um laudo fotográfico detalhado com geolocalização e assinatura técnica do engenheiro.
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                    <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
@@ -216,9 +216,9 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-6 text-center space-y-12">
            <div className="flex items-center justify-center gap-4">
               <div className="w-10 h-10 bg-brand-accent rounded-xl flex items-center justify-center text-brand-blue"><Icons.Building size={20} /></div>
-              <span className="text-2xl font-black text-white font-heading tracking-tighter">JLM <span className="text-brand-accent">Facilities</span></span>
+              <span className="text-2xl font-black text-white font-heading tracking-tighter">Facilities<span className="text-brand-accent">CON</span></span>
            </div>
-           <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">© {new Date().getFullYear()} JLM Facilities • Gestão & Engenharia</p>
+           <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.4em]">© {new Date().getFullYear()} FacilitiesCON • Gestão & Engenharia</p>
         </div>
       </footer>
     </div>

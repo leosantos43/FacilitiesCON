@@ -196,7 +196,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
       <div className="hidden print:block print-header">
          <div className="flex justify-between items-start w-full">
             <div>
-               <h1 className="text-4xl font-black text-brand-blue uppercase tracking-tighter">JLM <span className="text-brand-accent">Facilities</span></h1>
+               <h1 className="text-4xl font-black text-brand-blue uppercase tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
                <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Relatório Técnico de Engenharia</p>
                <div className="mt-6 text-[10px] text-slate-400 leading-relaxed font-bold uppercase space-y-1">
                   <p>{company?.company_name} • CNPJ: {company?.cnpj}</p>
@@ -329,7 +329,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                         <Icons.CheckCircle size={24} />
                      </div>
                      <div>
-                        <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Garantia JLM Facilities: 3 meses</p>
+                        <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Garantia FacilitiesCON: 3 meses</p>
                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Certificado de integridade técnica</p>
                      </div>
                   </div>

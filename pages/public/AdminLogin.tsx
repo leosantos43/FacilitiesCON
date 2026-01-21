@@ -45,9 +45,9 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-jlm-light p-6">
       <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
         <div className="bg-gray-900 p-10 text-center relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-jlm-accent rounded-full blur-[80px] opacity-20"></div>
-           <Icons.Shield className="mx-auto mb-4 text-jlm-accent relative z-10" size={48} />
-           <h1 className="text-2xl font-black font-heading text-white relative z-10">Facilities<span className="text-jlm-accent">CON</span> Staff</h1>
+           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent rounded-full blur-[80px] opacity-20"></div>
+           <Icons.Shield className="mx-auto mb-4 text-brand-accent relative z-10" size={48} />
+           <h1 className="text-2xl font-black font-heading text-white relative z-10">Facilities<span className="text-brand-accent">CON</span> Staff</h1>
            <p className="text-gray-400 text-sm mt-1 relative z-10 font-medium">Controle Operacional e Gestão</p>
         </div>
         
@@ -64,7 +64,7 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
                 <input
                   type="email"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-jlm-blue outline-none transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-brand-accent outline-none transition-all font-medium"
                   placeholder="admin@facilitiescon.com.br"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -78,7 +78,7 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-jlm-blue outline-none transition-all font-medium"
+                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-brand-accent outline-none transition-all font-medium"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -86,7 +86,7 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
                 <button 
                    type="button"
                    onClick={() => setShowPassword(!showPassword)}
-                   className="absolute right-4 top-3.5 text-gray-400 hover:text-jlm-blue transition"
+                   className="absolute right-4 top-3.5 text-gray-400 hover:text-brand-accent transition"
                 >
                    {showPassword ? <Icons.Smile size={18} /> : <Icons.Smile size={18} className="opacity-40" />}
                 </button>
@@ -99,7 +99,7 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
           
           <div className="mt-10 pt-8 border-t border-gray-50 text-center">
-            <Link to="/login" className="text-[10px] font-black text-gray-300 hover:text-jlm-blue uppercase tracking-widest transition">Voltar ao Portal do Morador</Link>
+            <Link to="/login" className="text-[10px] font-black text-gray-300 hover:text-brand-accent uppercase tracking-widest transition">Voltar ao Portal do Morador</Link>
           </div>
         </div>
       </div>
