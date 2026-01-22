@@ -32,6 +32,9 @@ const AdminRequests: React.FC = () => {
     return isRightScope && matchesText;
   });
 
+  const condoPendingCount = requests.filter(r => !r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+  const residentPendingCount = requests.filter(r => r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
       case RequestStatus.COMPLETED: return 'bg-emerald-50 text-emerald-700 border-emerald-100';
@@ -59,8 +62,28 @@ const AdminRequests: React.FC = () => {
            <p className="text-slate-500 text-sm font-medium">Gestão global de todas as solicitações técnicas da rede.</p>
         </div>
         <div className="flex bg-slate-200 p-1.5 rounded-2xl border border-slate-300 w-full md:w-fit shadow-sm">
-           <button onClick={() => setActiveTab('condo')} className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'condo' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}>Áreas Comuns</button>
-           <button onClick={() => setActiveTab('resident')} className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'resident' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}>Moradores</button>
+           <button 
+             onClick={() => setActiveTab('condo')} 
+             className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'condo' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}
+           >
+              Áreas Comuns
+              {condoPendingCount > 0 && (
+                <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                  {condoPendingCount}
+                </span>
+              )}
+           </button>
+           <button 
+             onClick={() => setActiveTab('resident')} 
+             className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'resident' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}
+           >
+              Moradores
+              {residentPendingCount > 0 && (
+                <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                  {residentPendingCount}
+                </span>
+              )}
+           </button>
         </div>
       </div>
 
@@ -147,4 +170,5 @@ const AdminRequests: React.FC = () => {
   );
 };
 
+// Fix: Added missing default export
 export default AdminRequests;

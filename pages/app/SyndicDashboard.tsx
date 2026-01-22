@@ -31,6 +31,9 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
   const privateRequests = requests.filter(r => r.is_private && r.status !== RequestStatus.COMPLETED && r.status !== RequestStatus.CANCELED);
   const finishedRequests = requests.filter(r => r.status === RequestStatus.COMPLETED);
   
+  const commonPendingCount = requests.filter(r => !r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+  const privatePendingCount = requests.filter(r => r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+
   const displayedRequests = activeTab === 'common' ? commonRequests : activeTab === 'private' ? privateRequests : finishedRequests;
   
   const totalCost = requests.filter(r => r.status === RequestStatus.COMPLETED).reduce((acc, r) => acc + (r.budget_value || 0), 0);
@@ -67,8 +70,28 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
       </div>
 
       <div className="flex bg-slate-100 p-1.5 rounded-2xl w-full sm:w-fit border border-slate-200 shadow-sm overflow-x-auto custom-scrollbar">
-         <button onClick={() => setActiveTab('common')} className={`px-6 md:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'common' ? 'bg-white text-brand-blue shadow-premium' : 'text-slate-400 hover:text-slate-600'}`}>Áreas Comuns</button>
-         <button onClick={() => setActiveTab('private')} className={`px-6 md:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'private' ? 'bg-white text-brand-blue shadow-premium' : 'text-slate-400 hover:text-slate-600'}`}>Moradores</button>
+         <button 
+           onClick={() => setActiveTab('common')} 
+           className={`px-6 md:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'common' ? 'bg-white text-brand-blue shadow-premium' : 'text-slate-400 hover:text-slate-600'}`}
+         >
+           Áreas Comuns
+           {commonPendingCount > 0 && (
+             <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+               {commonPendingCount}
+             </span>
+           )}
+         </button>
+         <button 
+           onClick={() => setActiveTab('private')} 
+           className={`px-6 md:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'private' ? 'bg-white text-brand-blue shadow-premium' : 'text-slate-400 hover:text-slate-600'}`}
+         >
+           Moradores
+           {privatePendingCount > 0 && (
+             <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+               {privatePendingCount}
+             </span>
+           )}
+         </button>
          <button onClick={() => setActiveTab('finished')} className={`px-6 md:px-10 py-3 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'finished' ? 'bg-emerald-500 text-white shadow-premium' : 'text-slate-400 hover:text-slate-600'}`}>Finalizados</button>
       </div>
 
@@ -144,4 +167,5 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
   );
 };
 
+// Fix: Added missing default export
 export default SyndicDashboard;

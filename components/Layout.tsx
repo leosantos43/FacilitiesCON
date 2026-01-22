@@ -85,7 +85,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [activeRequestsCount, setActiveRequestsCount] = useState(0);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
   useEffect(() => {
     setSidebarOpen(false);
@@ -101,7 +101,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
       ]);
 
       setNotifications(notifs);
-      setActiveRequestsCount(reqs.filter(r => r.status !== RequestStatus.COMPLETED && r.status !== RequestStatus.CANCELED).length);
+      setPendingRequestsCount(reqs.filter(r => r.status === RequestStatus.PENDING_APPROVAL).length);
     } catch (e) {
       console.error("Erro ao atualizar dados do layout:", e);
     }
@@ -130,7 +130,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
 
   const menuItems = user?.role === UserRole.ADMIN ? [
     { label: 'Visão Geral', path: '/admin', icon: Icons.LayoutDashboard },
-    { label: 'Chamados', path: '/admin/requests', icon: Icons.ClipboardList, badge: activeRequestsCount },
+    { label: 'Chamados', path: '/admin/requests', icon: Icons.ClipboardList, badge: pendingRequestsCount },
     { label: 'Condomínios', path: '/admin/condos', icon: Icons.Building2 },
     { label: 'Prestadores', path: '/admin/professionals', icon: Icons.Briefcase },
     { label: 'Equipe', path: '/admin/users', icon: Icons.Users },
@@ -138,7 +138,7 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
     { label: 'Dados da Unidade', path: '/admin/unit-settings', icon: Icons.Settings },
   ] : user?.role === UserRole.SYNDIC ? [
     { label: 'Meu Prédio', path: '/app', icon: Icons.LayoutDashboard },
-    { label: 'Abrir Chamado', path: '/app/new-request', icon: Icons.PlusCircle },
+    { label: 'Abrir Chamado', path: '/app/new-request', icon: Icons.PlusCircle, badge: pendingRequestsCount },
     { label: 'Configurações', path: '/app/settings', icon: Icons.Settings },
   ] : [
     { label: 'Meu Portal', path: '/resident', icon: Icons.Home },
@@ -164,6 +164,11 @@ export const AppLayout: React.FC<LayoutProps> = ({ children, user, onLogout }) =
                 <item.icon size={20} />
                 <span className="text-[10px] uppercase tracking-widest">{item.label}</span>
               </div>
+              {item.badge !== undefined && item.badge > 0 && (
+                <span className="bg-red-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
