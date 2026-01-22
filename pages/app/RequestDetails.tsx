@@ -76,10 +76,10 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
     setActionLoading(true);
     try {
       const compressed = await Promise.all(
-        Array.from(files).map(f => compressImage(f as File, 800, 0.7))
+        Array.from(files).map(f => compressImage(f as File, 1200, 0.8)) // Melhor qualidade para laudo
       );
-      if (type === 'before') setPhotosBefore(prev => [...prev, ...compressed].slice(0, 3));
-      else setPhotosAfter(prev => [...prev, ...compressed].slice(0, 3));
+      if (type === 'before') setPhotosBefore(prev => [...prev, ...compressed].slice(0, 4));
+      else setPhotosAfter(prev => [...prev, ...compressed].slice(0, 4));
     } finally {
       setActionLoading(false);
       if (e.target) e.target.value = '';
@@ -163,7 +163,9 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                      (isAdmin);
 
   const creationDate = new Date(request.created_at).toLocaleDateString('pt-BR');
+  const creationTime = new Date(request.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   const completionDate = request.status === RequestStatus.COMPLETED ? new Date(request.updated_at).toLocaleDateString('pt-BR') : null;
+  const completionTime = request.status === RequestStatus.COMPLETED ? new Date(request.updated_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null;
 
   return (
     <div className="max-w-7xl mx-auto pb-20 px-4 md:px-0 animate-in fade-in duration-700">
@@ -177,36 +179,72 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
             min-height: auto !important;
             position: static !important;
           }
-          body { background: white !important; -webkit-print-color-adjust: exact; }
-          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer { 
+          body { background: white !important; -webkit-print-color-adjust: exact; color: #000 !important; }
+          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer, .chat-section { 
             display: none !important; 
           }
           .max-w-7xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
-          .print-header { display: flex !important; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
-          .rounded-[3.5rem] { border-radius: 1.5rem !important; border: 1px solid #eee !important; box-shadow: none !important; }
-          .shadow-premium, .shadow-sm { box-shadow: none !important; }
-          .bg-slate-50 { background-color: #f8fafc !important; }
-          .text-brand-blue { color: #0F172A !important; }
-          .text-brand-accent { color: #38BDF8 !important; }
-          .laudo-border { border: 2px solid #e2e8f0 !important; border-radius: 1rem !important; padding: 2rem !important; }
+          
+          /* Estilo do Documento de Engenharia */
+          .laudo-container { 
+            border: 1px solid #000 !important; 
+            padding: 0 !important; 
+            border-radius: 0 !important;
+            box-shadow: none !important;
+          }
+          .laudo-header {
+            background-color: #f1f5f9 !important;
+            border-bottom: 2px solid #000 !important;
+            padding: 2rem !important;
+          }
+          .laudo-section-title {
+            background-color: #0F172A !important;
+            color: #fff !important;
+            padding: 0.5rem 1rem !important;
+            font-size: 10px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            font-weight: 900 !important;
+            margin-bottom: 1rem !important;
+            -webkit-print-color-adjust: exact;
+          }
+          .laudo-grid-label { color: #64748b !important; font-size: 9px !important; text-transform: uppercase !important; font-weight: 800 !important; }
+          .laudo-grid-value { color: #000 !important; font-size: 12px !important; font-weight: 700 !important; }
+          
+          .photo-grid-print { 
+            display: grid !important; 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            gap: 10px !important; 
+            page-break-inside: avoid;
+          }
+          .photo-item-print {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 4px !important;
+            overflow: hidden !important;
+            height: 250px !important;
+          }
+          .photo-item-print img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+          }
+          .page-break { page-break-before: always; padding-top: 2rem; }
         }
       `}</style>
 
-      {/* CABEÇALHO PARA IMPRESSÃO */}
-      <div className="hidden print:block print-header">
-         <div className="flex justify-between items-start w-full">
-            <div>
-               <h1 className="text-4xl font-black text-brand-blue uppercase tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
-               <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-widest">Relatório Técnico de Engenharia</p>
-               <div className="mt-6 text-[10px] text-slate-400 leading-relaxed font-bold uppercase space-y-1">
-                  <p>{company?.company_name} • CNPJ: {company?.cnpj}</p>
-                  <p>{company?.address}</p>
-                  <p>{company?.email} • {company?.phone}</p>
+      {/* CABEÇALHO PARA IMPRESSÃO (TIMBRADO) */}
+      <div className="hidden print:block mb-8">
+         <div className="flex justify-between items-center border-b-4 border-brand-blue pb-6">
+            <div className="flex items-center gap-4">
+               <div className="bg-brand-blue p-2 rounded-lg"><Icons.Building size={32} className="text-brand-accent" /></div>
+               <div>
+                  <h1 className="text-3xl font-black text-brand-blue tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
+                  <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">Engenharia e Manutenção Predial</p>
                </div>
             </div>
             <div className="text-right">
-               <div className="bg-slate-900 text-white px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest mb-2 inline-block">Protocolo #{request.protocol}</div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase">Emissão: {new Date().toLocaleDateString('pt-BR')}</p>
+               <p className="text-xl font-black text-slate-900">Relatório Técnico #{request.protocol}</p>
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Documento Original Autenticado</p>
             </div>
          </div>
       </div>
@@ -263,101 +301,135 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
             </div>
           )}
 
-          {/* LAUDO TÉCNICO DE CONCLUSÃO */}
-          {request.status === RequestStatus.COMPLETED && (
-            <div className="bg-white border-2 border-emerald-100 p-8 md:p-14 rounded-[3.5rem] shadow-premium laudo-border print:shadow-none">
-               <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12 border-b border-slate-100 pb-10 print:mb-14">
-                  <div className="flex items-center gap-4">
-                     <div className="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center shadow-lg print:hidden">
-                        <Icons.ShieldCheck size={32} />
-                     </div>
-                     <div>
-                        <h2 className="text-3xl font-black font-heading text-slate-900 tracking-tight leading-none">Laudo de Conclusão</h2>
-                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Serviço Certificado & Homologado</p>
-                     </div>
-                  </div>
-                  <div className="flex flex-wrap gap-6">
-                     <div className="bg-slate-50 px-5 py-3 rounded-xl border border-slate-100">
-                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Início</p>
-                        <p className="text-xs font-black text-slate-700">{creationDate}</p>
-                     </div>
-                     <div className="bg-emerald-50 px-5 py-3 rounded-xl border border-emerald-100">
-                        <p className="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">Conclusão</p>
-                        <p className="text-xs font-black text-emerald-700">{completionDate}</p>
-                     </div>
-                  </div>
-               </div>
+          {/* LAUDO TÉCNICO DE CONCLUSÃO (VISUALIZAÇÃO COMPLETA) */}
+          <div className="bg-white border border-slate-100 p-0 rounded-[3.5rem] shadow-premium overflow-hidden laudo-container print:border-black">
                
-               <div className="bg-slate-50 p-10 rounded-[2.5rem] shadow-inner border border-emerald-100 mb-12 print:bg-white print:border-l-4 print:border-emerald-500 print:rounded-none print:p-6">
-                  <Icons.Quote className="absolute top-6 right-8 text-emerald-50 opacity-20 print:hidden" size={80} />
-                  <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Relatório Final da Intervenção:</h4>
-                  <p className="text-lg text-slate-700 leading-relaxed font-medium italic print:not-italic print:text-base">
-                    "{request.technical_report}"
-                  </p>
-               </div>
-
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
-                  <div className="space-y-4">
-                     <h5 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-red-400"></span> Registro Fotográfico: Entrada
-                     </h5>
-                     <div className="grid grid-cols-3 gap-2">
-                        {(request.photos_before || []).map((img, i) => (
-                           <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
-                              <img src={img} className="w-full h-full object-cover" />
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-                  <div className="space-y-4">
-                     <h5 className="text-[11px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Registro Fotográfico: Saída
-                     </h5>
-                     <div className="grid grid-cols-3 gap-2">
-                        {(request.photos_after || []).map((img, i) => (
-                           <div key={i} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
-                              <img src={img} className="w-full h-full object-cover" />
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-               </div>
-
-               <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-emerald-100 print:mt-10">
-                  <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 print:hidden">
-                        <Icons.CheckCircle size={24} />
+               {/* I. Identificação */}
+               <div className="bg-slate-50/50 p-8 md:p-12 border-b border-slate-100 laudo-header print:bg-slate-100">
+                  <div className="laudo-section-title hidden print:block">I. Identificação da Ordem de Serviço</div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                     <div>
+                        <p className="laudo-grid-label">Condomínio</p>
+                        <p className="laudo-grid-value">{request.condo_name}</p>
                      </div>
                      <div>
-                        <p className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Garantia FacilitiesCON: 3 meses</p>
-                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Certificado de integridade técnica</p>
+                        <p className="laudo-grid-label">Localização</p>
+                        <p className="laudo-grid-value">{request.unit_info || 'Área Comum'}</p>
+                     </div>
+                     <div>
+                        <p className="laudo-grid-label">Abertura</p>
+                        <p className="laudo-grid-value">{creationDate} às {creationTime}</p>
+                     </div>
+                     <div>
+                        <p className="laudo-grid-label">Conclusão</p>
+                        <p className="laudo-grid-value">{completionDate || 'Em andamento'} {completionTime ? `às ${completionTime}` : ''}</p>
                      </div>
                   </div>
-                  <button onClick={printVoucher} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-black transition-all flex items-center gap-2 print:hidden no-print">
-                     <Icons.Download size={16} /> Baixar Laudo Completo (PDF)
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-10 pt-10 border-t border-slate-100/50">
+                     <div>
+                        <p className="laudo-grid-label">Vertical Técnica</p>
+                        <p className="laudo-grid-value uppercase text-brand-blue">{request.type}</p>
+                     </div>
+                     <div>
+                        <p className="laudo-grid-label">Responsável Técnico</p>
+                        <p className="laudo-grid-value">{request.professional_name || 'Gestão FacilitiesCON'}</p>
+                     </div>
+                     <div>
+                        <p className="laudo-grid-label">Investimento</p>
+                        <p className="laudo-grid-value text-emerald-600">R$ {request.budget_value?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '---'}</p>
+                     </div>
+                     <div>
+                        <p className="laudo-grid-label">Garantia</p>
+                        <p className="laudo-grid-value">90 Dias (Legal)</p>
+                     </div>
+                  </div>
+               </div>
+
+               {/* II. Escopo */}
+               <div className="p-8 md:p-12 space-y-12">
+                  <section>
+                    <div className="laudo-section-title">II. Descrição da Ocorrência</div>
+                    <p className="text-slate-600 font-medium leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 print:bg-white print:border-none print:p-0">
+                       {request.description}
+                    </p>
+                  </section>
+
+                  {/* III. Registro Fotográfico */}
+                  <section className="space-y-10">
+                    <div className="laudo-section-title">III. Evidências Fotográficas</div>
+                    
+                    <div className="space-y-12">
+                       {/* Fotos Entrada */}
+                       <div>
+                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                             <span className="w-2 h-2 rounded-full bg-red-400"></span> Registro de Entrada (Diagnóstico)
+                          </h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 photo-grid-print">
+                             {(request.photos_before || request.photos || []).map((img, i) => (
+                                <div key={i} className="aspect-video md:aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm photo-item-print">
+                                   <img src={img} className="w-full h-full object-cover" />
+                                </div>
+                             ))}
+                          </div>
+                       </div>
+
+                       {/* Fotos Saída */}
+                       {(request.photos_after || []).length > 0 && (
+                          <div className="pt-4">
+                             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Registro de Saída (Finalização)
+                             </h4>
+                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 photo-grid-print">
+                                {(request.photos_after || []).map((img, i) => (
+                                   <div key={i} className="aspect-video md:aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm photo-item-print">
+                                      <img src={img} className="w-full h-full object-cover" />
+                                   </div>
+                                ))}
+                             </div>
+                          </div>
+                       )}
+                    </div>
+                  </section>
+
+                  {/* IV. Parecer Técnico */}
+                  {request.status === RequestStatus.COMPLETED && (
+                    <section className="page-break">
+                       <div className="laudo-section-title">IV. Parecer Técnico e Conclusão</div>
+                       <div className="bg-brand-blue/5 p-8 rounded-[2rem] border-l-8 border-brand-blue print:border-black print:bg-white">
+                          <p className="text-lg text-slate-800 font-bold leading-relaxed italic print:text-base">
+                             "{request.technical_report}"
+                          </p>
+                          <div className="mt-10 pt-10 border-t border-brand-blue/10 flex flex-col md:flex-row justify-between items-end gap-6 print:mt-20 print:border-black">
+                             <div className="space-y-1">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Documento Gerado em</p>
+                                <p className="font-bold text-slate-900">{new Date().toLocaleString('pt-BR')}</p>
+                             </div>
+                             <div className="text-center md:text-right print:w-64">
+                                <div className="h-px w-48 bg-slate-300 mx-auto md:ml-auto mb-2 print:border-black"></div>
+                                <p className="text-[10px] font-black uppercase text-slate-400">Assinatura Eletrônica FacilitiesCON</p>
+                                <p className="text-[8px] text-slate-300 font-medium">Protocolo de Integridade Digital: {id?.substring(0,8).toUpperCase()}</p>
+                             </div>
+                          </div>
+                       </div>
+                    </section>
+                  )}
+               </div>
+
+               {/* Botão de Ação do WebApp */}
+               <div className="p-8 bg-slate-50 border-t border-slate-100 flex justify-between items-center print:hidden no-print">
+                  <div className="flex items-center gap-3">
+                     <Icons.ShieldCheck size={24} className="text-brand-blue" />
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Certificado JLM Engineering</p>
+                  </div>
+                  <button onClick={printVoucher} className="px-8 py-4 bg-brand-blue text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-black transition-all flex items-center gap-3">
+                     <Icons.Download size={18} className="text-brand-accent" /> Exportar Laudo em PDF
                   </button>
                </div>
-            </div>
-          )}
+          </div>
 
-          {/* DETALHES GERAIS DO CHAMADO */}
-          <div className="bg-white p-8 md:p-14 rounded-[3.5rem] shadow-sm border border-slate-100 print:border-none print:shadow-none print:p-0">
-            <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-               <div>
-                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 font-heading tracking-tighter">{request.type}</h1>
-                  <p className="text-[10px] font-black text-brand-accent uppercase tracking-[0.3em] mt-2">Vertical de Manutenção</p>
-               </div>
-               <div className="text-right print:text-left">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Localização</p>
-                  <p className="font-black text-brand-blue">{request.condo_name} • {request.unit_info || 'Infraestrutura Geral'}</p>
-               </div>
-            </div>
-
-            <div className="bg-slate-50 p-10 rounded-[2.5rem] border-l-8 border-l-brand-accent italic font-medium text-slate-600 mb-14 shadow-inner text-lg print:bg-white print:border-none print:p-0 print:italic">
-              "{request.description}"
-            </div>
-            
-            <div className="pt-12 border-t border-slate-100 print:hidden no-print">
+          {/* Timeline apenas na web */}
+          <div className="pt-12 print:hidden">
                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-10 flex items-center gap-3 italic">
                  <Icons.Activity size={20} className="text-brand-accent" /> Histórico de Atividades
                </h3>
@@ -371,12 +443,11 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                     </div>
                   ))}
                </div>
-            </div>
           </div>
         </div>
 
         {/* SIDEBAR DE GESTÃO */}
-        <div className="lg:col-span-4 space-y-8 print:hidden no-print">
+        <div className="lg:col-span-4 space-y-8 print:hidden">
            
            {isAdmin && request.status !== RequestStatus.COMPLETED && request.status !== RequestStatus.CANCELED && (
              <div className="bg-slate-900 text-white p-10 rounded-[3.5rem] shadow-2xl space-y-8 border border-white/5 relative overflow-hidden">
@@ -448,7 +519,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
              </div>
            )}
 
-           <div className="bg-white rounded-[3.5rem] shadow-sm border border-slate-100 overflow-hidden h-[600px] flex flex-col no-print central-mensagens">
+           <div className="bg-white rounded-[3.5rem] shadow-sm border border-slate-100 overflow-hidden h-[600px] flex flex-col chat-section">
               <div className="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center gap-4">
                  <div className="w-10 h-10 bg-brand-blue rounded-xl flex items-center justify-center text-brand-accent shadow-sm">
                     <Icons.MessageSquare size={18} />
@@ -486,7 +557,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                             </button>
                          </div>
                        ))}
-                       {photosBefore.length < 3 && (
+                       {photosBefore.length < 4 && (
                           <button onClick={() => fileBeforeRef.current?.click()} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:border-brand-accent transition-all">
                              <Icons.Plus size={20} />
                           </button>
@@ -509,7 +580,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                             </button>
                          </div>
                        ))}
-                       {photosAfter.length < 3 && (
+                       {photosAfter.length < 4 && (
                           <button onClick={() => fileAfterRef.current?.click()} className="aspect-square border-2 border-dashed border-slate-200 rounded-xl flex items-center justify-center text-slate-300 hover:border-brand-accent transition-all">
                              <Icons.Plus size={20} />
                           </button>
