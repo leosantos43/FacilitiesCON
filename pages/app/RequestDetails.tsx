@@ -76,7 +76,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
     setActionLoading(true);
     try {
       const compressed = await Promise.all(
-        Array.from(files).map(f => compressImage(f as File, 1200, 0.8)) // Melhor qualidade para laudo
+        Array.from(files).map(f => compressImage(f as File, 1200, 0.8))
       );
       if (type === 'before') setPhotosBefore(prev => [...prev, ...compressed].slice(0, 4));
       else setPhotosAfter(prev => [...prev, ...compressed].slice(0, 4));
@@ -142,17 +142,14 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
         professional_name: prof?.name,
         professional_cpf: prof?.cpf,
         professional_photo: prof?.photo,
-        budget_status: 'pending'
+        budget_status: 'approved'
       }
     );
   };
 
   const printVoucher = (e: React.MouseEvent) => {
      e.preventDefault();
-     e.stopPropagation();
-     setTimeout(() => {
-        window.print();
-     }, 100);
+     window.print();
   };
 
   if (loading) return <div className="p-24 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></div>;
@@ -172,79 +169,117 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
       
       <style>{`
         @media print {
-          @page { margin: 1.5cm; size: A4; }
-          html, body, #root, .flex-1, main, .overflow-y-auto { 
-            overflow: visible !important; 
+          @page { 
+            margin: 1.5cm; 
+            size: A4; 
+          }
+          
+          /* CRÍTICO: Remove travas de altura que impedem múltiplas páginas */
+          html, body, #root, .flex, .flex-1, main, .overflow-y-auto, .h-screen { 
             height: auto !important; 
             min-height: auto !important;
+            overflow: visible !important; 
             position: static !important;
+            display: block !important;
           }
-          body { background: white !important; -webkit-print-color-adjust: exact; color: #000 !important; }
-          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer, .chat-section { 
+
+          body { 
+            background: white !important; 
+            -webkit-print-color-adjust: exact; 
+            color: #000 !important; 
+          }
+
+          /* Esconde elementos de interface */
+          nav, header, aside, .no-print, button, .sidebar-container, .central-mensagens, footer, .chat-section, .timeline-section { 
             display: none !important; 
           }
+
           .max-w-7xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
           
           /* Estilo do Documento de Engenharia */
           .laudo-container { 
-            border: 1px solid #000 !important; 
+            border: 1px solid #e2e8f0 !important; 
             padding: 0 !important; 
             border-radius: 0 !important;
             box-shadow: none !important;
+            display: block !important;
           }
+
           .laudo-header {
-            background-color: #f1f5f9 !important;
-            border-bottom: 2px solid #000 !important;
-            padding: 2rem !important;
+            background-color: #f8fafc !important;
+            border-bottom: 2px solid #0f172a !important;
+            padding: 1.5rem !important;
+            page-break-inside: avoid;
           }
+
+          .laudo-section {
+            padding: 1.5rem !important;
+            page-break-inside: avoid;
+          }
+
           .laudo-section-title {
-            background-color: #0F172A !important;
-            color: #fff !important;
-            padding: 0.5rem 1rem !important;
-            font-size: 10px !important;
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            padding: 0.6rem 1rem !important;
+            font-size: 11px !important;
             text-transform: uppercase !important;
             letter-spacing: 0.1em !important;
             font-weight: 900 !important;
-            margin-bottom: 1rem !important;
+            margin-bottom: 1.5rem !important;
             -webkit-print-color-adjust: exact;
           }
-          .laudo-grid-label { color: #64748b !important; font-size: 9px !important; text-transform: uppercase !important; font-weight: 800 !important; }
+
+          .laudo-grid-label { color: #64748b !important; font-size: 9px !important; text-transform: uppercase !important; font-weight: 800 !important; margin-bottom: 2px; }
           .laudo-grid-value { color: #000 !important; font-size: 12px !important; font-weight: 700 !important; }
           
           .photo-grid-print { 
             display: grid !important; 
             grid-template-columns: repeat(2, 1fr) !important; 
-            gap: 10px !important; 
-            page-break-inside: avoid;
+            gap: 15px !important; 
           }
+
           .photo-item-print {
             border: 1px solid #e2e8f0 !important;
-            border-radius: 4px !important;
+            border-radius: 8px !important;
             overflow: hidden !important;
-            height: 250px !important;
+            height: 280px !important;
+            page-break-inside: avoid;
           }
+
           .photo-item-print img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
           }
-          .page-break { page-break-before: always; padding-top: 2rem; }
+
+          .page-break { 
+            page-break-before: always; 
+            padding-top: 1cm;
+          }
+
+          .parecer-container {
+             border-left: 6px solid #0f172a !important;
+             background: #f8fafc !important;
+             padding: 2rem !important;
+             margin-top: 1rem !important;
+             page-break-inside: avoid;
+          }
         }
       `}</style>
 
       {/* CABEÇALHO PARA IMPRESSÃO (TIMBRADO) */}
-      <div className="hidden print:block mb-8">
-         <div className="flex justify-between items-center border-b-4 border-brand-blue pb-6">
-            <div className="flex items-center gap-4">
-               <div className="bg-brand-blue p-2 rounded-lg"><Icons.Building size={32} className="text-brand-accent" /></div>
+      <div className="hidden print:block mb-10">
+         <div className="flex justify-between items-center border-b-4 border-brand-blue pb-8">
+            <div className="flex items-center gap-5">
+               <div className="bg-brand-blue p-3 rounded-2xl"><Icons.Building size={40} className="text-brand-accent" /></div>
                <div>
-                  <h1 className="text-3xl font-black text-brand-blue tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
-                  <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]">Engenharia e Manutenção Predial</p>
+                  <h1 className="text-4xl font-black text-brand-blue tracking-tighter">Facilities<span className="text-brand-accent">CON</span></h1>
+                  <p className="text-[11px] font-black uppercase text-slate-500 tracking-[0.3em]">Engenharia e Manutenção Predial</p>
                </div>
             </div>
             <div className="text-right">
-               <p className="text-xl font-black text-slate-900">Relatório Técnico #{request.protocol}</p>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Documento Original Autenticado</p>
+               <p className="text-2xl font-black text-slate-900">Relatório Técnico</p>
+               <p className="text-brand-accent font-black uppercase tracking-widest text-sm">Protocolo #{request.protocol}</p>
             </div>
          </div>
       </div>
@@ -302,10 +337,10 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
           )}
 
           {/* LAUDO TÉCNICO DE CONCLUSÃO (VISUALIZAÇÃO COMPLETA) */}
-          <div className="bg-white border border-slate-100 p-0 rounded-[3.5rem] shadow-premium overflow-hidden laudo-container print:border-black">
+          <div className="bg-white border border-slate-100 p-0 rounded-[3.5rem] shadow-premium overflow-hidden laudo-container print:border-slate-200">
                
                {/* I. Identificação */}
-               <div className="bg-slate-50/50 p-8 md:p-12 border-b border-slate-100 laudo-header print:bg-slate-100">
+               <div className="bg-slate-50/50 p-8 md:p-12 border-b border-slate-100 laudo-header">
                   <div className="laudo-section-title hidden print:block">I. Identificação da Ordem de Serviço</div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                      <div>
@@ -348,7 +383,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
 
                {/* II. Escopo */}
                <div className="p-8 md:p-12 space-y-12">
-                  <section>
+                  <section className="laudo-section">
                     <div className="laudo-section-title">II. Descrição da Ocorrência</div>
                     <p className="text-slate-600 font-medium leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 print:bg-white print:border-none print:p-0">
                        {request.description}
@@ -356,12 +391,12 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                   </section>
 
                   {/* III. Registro Fotográfico */}
-                  <section className="space-y-10">
+                  <section className="laudo-section space-y-10">
                     <div className="laudo-section-title">III. Evidências Fotográficas</div>
                     
                     <div className="space-y-12">
                        {/* Fotos Entrada */}
-                       <div>
+                       <div className="page-break-avoid">
                           <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                              <span className="w-2 h-2 rounded-full bg-red-400"></span> Registro de Entrada (Diagnóstico)
                           </h4>
@@ -376,7 +411,7 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
 
                        {/* Fotos Saída */}
                        {(request.photos_after || []).length > 0 && (
-                          <div className="pt-4">
+                          <div className="pt-4 page-break-avoid">
                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-400"></span> Registro de Saída (Finalização)
                              </h4>
@@ -394,21 +429,22 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
 
                   {/* IV. Parecer Técnico */}
                   {request.status === RequestStatus.COMPLETED && (
-                    <section className="page-break">
+                    <section className="laudo-section page-break">
                        <div className="laudo-section-title">IV. Parecer Técnico e Conclusão</div>
-                       <div className="bg-brand-blue/5 p-8 rounded-[2rem] border-l-8 border-brand-blue print:border-black print:bg-white">
+                       <div className="bg-brand-blue/5 p-8 rounded-[2rem] border-l-8 border-brand-blue parecer-container print:bg-slate-50">
                           <p className="text-lg text-slate-800 font-bold leading-relaxed italic print:text-base">
                              "{request.technical_report}"
                           </p>
-                          <div className="mt-10 pt-10 border-t border-brand-blue/10 flex flex-col md:flex-row justify-between items-end gap-6 print:mt-20 print:border-black">
+                          <div className="mt-10 pt-10 border-t border-brand-blue/10 flex flex-col md:flex-row justify-between items-end gap-6 print:mt-20 print:border-slate-200">
                              <div className="space-y-1">
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Documento Gerado em</p>
                                 <p className="font-bold text-slate-900">{new Date().toLocaleString('pt-BR')}</p>
                              </div>
-                             <div className="text-center md:text-right print:w-64">
-                                <div className="h-px w-48 bg-slate-300 mx-auto md:ml-auto mb-2 print:border-black"></div>
-                                <p className="text-[10px] font-black uppercase text-slate-400">Assinatura Eletrônica FacilitiesCON</p>
-                                <p className="text-[8px] text-slate-300 font-medium">Protocolo de Integridade Digital: {id?.substring(0,8).toUpperCase()}</p>
+                             <div className="text-center md:text-right print:w-72">
+                                <div className="h-px w-full bg-slate-300 mx-auto md:ml-auto mb-3 print:bg-slate-900"></div>
+                                <p className="text-[10px] font-black uppercase text-slate-900 mb-1">Assinatura Digital FacilitiesCON</p>
+                                <p className="text-[9px] text-slate-400 font-bold uppercase">Resp. Técnico: {request.professional_name || 'Gestão CON'}</p>
+                                <p className="text-[7px] text-slate-300 font-medium mt-2">Hash de Integridade: {id?.substring(0,16).toUpperCase()}</p>
                              </div>
                           </div>
                        </div>
@@ -420,16 +456,16 @@ const RequestDetails: React.FC<Props> = ({ user }) => {
                <div className="p-8 bg-slate-50 border-t border-slate-100 flex justify-between items-center print:hidden no-print">
                   <div className="flex items-center gap-3">
                      <Icons.ShieldCheck size={24} className="text-brand-blue" />
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Certificado JLM Engineering</p>
+                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Certificação FacilitiesCON</p>
                   </div>
                   <button onClick={printVoucher} className="px-8 py-4 bg-brand-blue text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg hover:bg-black transition-all flex items-center gap-3">
-                     <Icons.Download size={18} className="text-brand-accent" /> Exportar Laudo em PDF
+                     <Icons.Download size={18} className="text-brand-accent" /> Gerar Laudo Técnico (PDF)
                   </button>
                </div>
           </div>
 
           {/* Timeline apenas na web */}
-          <div className="pt-12 print:hidden">
+          <div className="pt-12 print:hidden timeline-section">
                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-10 flex items-center gap-3 italic">
                  <Icons.Activity size={20} className="text-brand-accent" /> Histórico de Atividades
                </h3>
