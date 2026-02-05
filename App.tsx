@@ -10,6 +10,7 @@ import Home from './pages/public/Home';
 import ResidentLogin from './pages/public/Login';
 import ResidentRegister from './pages/public/Register';
 import AdminLogin from './pages/public/AdminLogin';
+import AdminRegister from './pages/public/AdminRegister'; // Nova Página
 import HowItWorks from './pages/public/HowItWorks';
 import About from './pages/public/About';
 
@@ -75,7 +76,7 @@ const App: React.FC = () => {
         <Route path="/how-it-works" element={<PublicLayout><HowItWorks /></PublicLayout>} />
         <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
         
-        {/* Autenticação - Redirecionamento inteligente baseado no Role */}
+        {/* Autenticação */}
         <Route path="/login" element={
           !user ? (
             <PublicLayout><ResidentLogin onLogin={handleLogin} /></PublicLayout>
@@ -91,6 +92,15 @@ const App: React.FC = () => {
             <PublicLayout><AdminLogin onLogin={handleLogin} /></PublicLayout>
           ) : (
             <Navigate to={user.role === UserRole.ADMIN ? "/admin" : (user.role === UserRole.SYNDIC ? "/app" : "/resident")} />
+          )
+        } />
+
+        {/* Nova Rota de Registro Admin */}
+        <Route path="/staff/register" element={
+          !user ? (
+            <PublicLayout><AdminRegister /></PublicLayout>
+          ) : (
+            <Navigate to="/admin" />
           )
         } />
 
@@ -153,7 +163,7 @@ const App: React.FC = () => {
           }
         />
 
-        {/* Catch-all para usuários logados na rota errada */}
+        {/* Catch-all */}
         <Route path="*" element={
           user ? (
             <Navigate to={user.role === UserRole.ADMIN ? "/admin" : (user.role === UserRole.SYNDIC ? "/app" : "/resident")} />

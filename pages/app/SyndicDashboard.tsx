@@ -16,23 +16,35 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
   const [activeTab, setActiveTab] = useState<'common' | 'private' | 'finished'>('common');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchData();
-  }, [user]);
-
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     const data = await db.getServiceRequests(user.id, user.role, user.condo_name);
     setRequests(data);
-    setLoading(false);
+    if (showLoading) setLoading(false);
   };
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(() => fetchData(false), 10000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const commonRequests = requests.filter(r => !r.is_private && r.status !== RequestStatus.COMPLETED && r.status !== RequestStatus.CANCELED);
   const privateRequests = requests.filter(r => r.is_private && r.status !== RequestStatus.COMPLETED && r.status !== RequestStatus.CANCELED);
   const finishedRequests = requests.filter(r => r.status === RequestStatus.COMPLETED);
   
-  const commonPendingCount = requests.filter(r => !r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
-  const privatePendingCount = requests.filter(r => r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+  // O síndico precisa agir se:
+  // 1. O chamado está na triagem (Aguardando Aprovação Inicial)
+  // 2. O orçamento foi enviado e está AGUARDANDO ORÇAMENTO (Aprovação do Síndico)
+  const commonPendingCount = requests.filter(r => 
+    !r.is_private && 
+    (r.status === RequestStatus.PENDING_APPROVAL || r.status === RequestStatus.WAITING_BUDGET_APPROVAL)
+  ).length;
+
+  const privatePendingCount = requests.filter(r => 
+    r.is_private && 
+    (r.status === RequestStatus.PENDING_APPROVAL || r.status === RequestStatus.WAITING_BUDGET_APPROVAL)
+  ).length;
 
   const displayedRequests = activeTab === 'common' ? commonRequests : activeTab === 'private' ? privateRequests : finishedRequests;
   
@@ -96,7 +108,7 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
       </div>
 
       <div className="bg-white rounded-3xl md:rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        {loading ? (
+        {loading && requests.length === 0 ? (
           <div className="p-20 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></div>
         ) : displayedRequests.length === 0 ? (
           <div className="p-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest italic">Nenhuma atividade nesta categoria.</div>
@@ -130,9 +142,10 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
                           <span className={`w-fit text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border ${
                             req.status === RequestStatus.COMPLETED ? 'bg-green-50 text-green-700 border-green-100' : 
                             req.status === RequestStatus.CANCELED ? 'bg-red-50 text-red-700 border-red-100' :
+                            req.status === RequestStatus.BUDGET_APPROVED ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
                             'bg-blue-50 text-brand-blue border-blue-100'
                           }`}>
-                            {req.status}
+                            {req.status === RequestStatus.BUDGET_APPROVED ? 'Orçamento Aprovado' : req.status}
                           </span>
                           <span className="text-[9px] font-black text-slate-400 uppercase flex items-center gap-1">
                              <Icons.Calendar size={10} className="text-brand-accent" />
@@ -167,5 +180,4 @@ const SyndicDashboard: React.FC<Props> = ({ user, showHistory }) => {
   );
 };
 
-// Fix: Added missing default export
 export default SyndicDashboard;

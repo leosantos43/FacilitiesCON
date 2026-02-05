@@ -4,7 +4,7 @@ import { db } from '../../services/mockSupabase';
 import { ServiceRequest, RequestStatus, User } from '../../types';
 import { Icons } from '../../components/Icons';
 import { useNavigate } from 'react-router-dom';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminDashboard: React.FC = () => {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
@@ -12,43 +12,37 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const loadDashboardData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
+    try {
+      const [reqData, userData] = await Promise.all([
+        db.getServiceRequests(),
+        db.getUsers()
+      ]);
+      setRequests(reqData);
+      setUsers(userData);
+    } finally {
+      if (showLoading) setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadDashboardData = async () => {
-      setLoading(true);
-      try {
-        const [reqData, userData] = await Promise.all([
-          db.getServiceRequests(),
-          db.getUsers()
-        ]);
-        setRequests(reqData);
-        setUsers(userData);
-      } finally {
-        setLoading(false);
-      }
-    };
     loadDashboardData();
+    const interval = setInterval(() => loadDashboardData(false), 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const stats = [
-    { label: 'Total Geral', value: requests.length, icon: Icons.List, color: 'text-slate-400' },
-    { label: 'Triagem / Pendentes', value: requests.filter(r => r.status === RequestStatus.PENDING_APPROVAL).length, icon: Icons.Clock, color: 'text-orange-500' },
-    { label: 'Orçamentos em Análise', value: requests.filter(r => r.status === RequestStatus.WAITING_BUDGET_APPROVAL).length, icon: Icons.TrendingUp, color: 'text-indigo-500' },
-    { label: 'Executando Agora', value: requests.filter(r => r.status === RequestStatus.IN_PROGRESS).length, icon: Icons.Zap, color: 'text-brand-accent' },
+    { label: 'Triagem / Novos', value: requests.filter(r => r.status === RequestStatus.PENDING_APPROVAL).length, icon: Icons.Clock, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: 'Aprovados p/ Iniciar', value: requests.filter(r => r.status === RequestStatus.BUDGET_APPROVED).length, icon: Icons.CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50', pulse: true },
+    { label: 'Aguardando Orçamento', value: requests.filter(r => r.status === RequestStatus.WAITING_BUDGET_APPROVAL).length, icon: Icons.TrendingUp, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+    { label: 'Executando Agora', value: requests.filter(r => r.status === RequestStatus.IN_PROGRESS).length, icon: Icons.Zap, color: 'text-brand-accent', bg: 'bg-blue-50' },
   ];
 
   const chartData = [
     { name: 'Seg', v: 400 }, { name: 'Ter', v: 700 }, { name: 'Qua', v: 600 },
     { name: 'Qui', v: 1100 }, { name: 'Sex', v: 950 }, { name: 'Sab', v: 500 }, { name: 'Dom', v: 300 }
   ];
-
-  const pieData = [
-    { name: 'Elétrica', value: 400 },
-    { name: 'Hidráulica', value: 300 },
-    { name: 'Civil', value: 200 },
-    { name: 'T.I.', value: 150 },
-  ];
-
-  const PIE_COLORS = ['#38BDF8', '#0F172A', '#10B981', '#6366F1'];
 
   return (
     <div className="space-y-12 pb-20">
@@ -70,12 +64,12 @@ const AdminDashboard: React.FC = () => {
       {/* KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-100 group hover:shadow-premium transition-all duration-500">
-            <div className={`p-4 bg-slate-50 rounded-2xl w-fit mb-8 group-hover:bg-brand-blue transition-all ${stat.color}`}>
-              <stat.icon size={26} />
+          <div key={i} className={`bg-white p-10 rounded-[2.5rem] shadow-sm border ${stat.pulse && stat.value > 0 ? 'border-emerald-200 ring-4 ring-emerald-500/5' : 'border-slate-100'} group hover:shadow-premium transition-all duration-500 cursor-pointer`} onClick={() => navigate('/admin/requests')}>
+            <div className={`p-4 rounded-2xl w-fit mb-8 group-hover:bg-brand-blue group-hover:text-white transition-all ${stat.bg} ${stat.color}`}>
+              <stat.icon size={26} className={stat.pulse && stat.value > 0 ? 'animate-bounce' : ''} />
             </div>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</p>
-            <h3 className="text-5xl font-black text-slate-900 mt-2 tracking-tighter">{stat.value}</h3>
+            <h3 className={`text-5xl font-black mt-2 tracking-tighter ${stat.pulse && stat.value > 0 ? 'text-emerald-600' : 'text-slate-900'}`}>{stat.value}</h3>
           </div>
         ))}
       </div>
@@ -111,7 +105,6 @@ const AdminDashboard: React.FC = () => {
            </div>
         </div>
 
-        {/* Security and Integrity Panel */}
         <div className="bg-white p-12 rounded-[4rem] shadow-sm border border-slate-100 flex flex-col">
           <div className="flex items-center gap-4 mb-10">
              <div className="p-3 bg-brand-accent/10 rounded-xl text-brand-accent">
@@ -150,16 +143,8 @@ const AdminDashboard: React.FC = () => {
                    <span className="text-[10px] font-black uppercase tracking-widest">Admin Autenticado</span>
                 </div>
                 <p className="text-[10px] text-blue-200 leading-relaxed">
-                   O sistema está utilizando Supabase Auth com políticas de RLS ativas para garantir que dados de orçamentos e mensagens sejam sigilosos.
+                   Políticas RLS ativas. O administrador tem visão total de orçamentos e cronogramas.
                 </p>
-             </div>
-          </div>
-          
-          <div className="mt-10 pt-10 border-t border-slate-50 flex flex-col items-center">
-             <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.2em] mb-4">Infraestrutura Cloud</span>
-             <div className="flex gap-4 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all cursor-default">
-                <img src="https://supabase.com/dashboard/img/supabase-logo.svg" className="h-4" alt="Supabase" />
-                <span className="font-black text-[10px] text-slate-900">PostgreSQL</span>
              </div>
           </div>
         </div>

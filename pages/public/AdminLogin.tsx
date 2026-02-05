@@ -42,29 +42,30 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-jlm-light p-6">
-      <div className="w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
-        <div className="bg-gray-900 p-10 text-center relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-brand-accent rounded-full blur-[80px] opacity-20"></div>
+    <div className="min-h-screen flex items-center justify-center bg-brand-dark p-6 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-[40vw] h-[40vw] bg-brand-accent rounded-full blur-[120px] opacity-5"></div>
+      
+      <div className="w-full max-w-md bg-white rounded-[3rem] shadow-premium border border-gray-100 overflow-hidden relative z-10">
+        <div className="bg-brand-blue p-10 text-center relative overflow-hidden border-b border-gray-100">
            <Icons.Shield className="mx-auto mb-4 text-brand-accent relative z-10" size={48} />
-           <h1 className="text-2xl font-black font-heading text-white relative z-10">Facilities<span className="text-brand-accent">CON</span> Staff</h1>
-           <p className="text-gray-400 text-sm mt-1 relative z-10 font-medium">Controle Operacional e Gestão</p>
+           <h1 className="text-2xl font-black font-heading text-white relative z-10 tracking-tight italic uppercase">Staff <span className="text-brand-accent">Control</span></h1>
+           <p className="text-blue-300 text-[9px] mt-1 relative z-10 font-black uppercase tracking-[0.3em]">Engenharia & Gestão</p>
         </div>
         
         <div className="p-10">
-          {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl mb-6 text-xs font-bold border border-red-100 flex items-center gap-3">
+          {error && <div className="bg-red-50 text-red-600 p-4 rounded-2xl mb-6 text-[10px] font-black uppercase tracking-widest border border-red-100 flex items-center gap-3">
              <Icons.AlertTriangle size={18} /> {error}
           </div>}
           
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">E-mail Corporativo</label>
-              <div className="relative">
-                <Icons.Mail className="absolute left-4 top-3.5 text-gray-300" size={18} />
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">E-mail Staff</label>
+              <div className="relative group">
+                <Icons.Mail className="absolute left-4 top-3.5 text-gray-300 group-focus-within:text-brand-accent transition-colors" size={18} />
                 <input
                   type="email"
                   required
-                  className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-brand-accent outline-none transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent outline-none transition-all font-bold text-slate-800"
                   placeholder="admin@facilitiescon.com.br"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -73,12 +74,12 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Senha de Acesso</label>
-              <div className="relative">
-                <Icons.Lock className="absolute left-4 top-3.5 text-gray-300" size={18} />
+              <div className="relative group">
+                <Icons.Lock className="absolute left-4 top-3.5 text-gray-300 group-focus-within:text-brand-accent transition-colors" size={18} />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
-                  className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-brand-accent outline-none transition-all font-medium"
+                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-4 focus:ring-brand-accent/5 focus:border-brand-accent outline-none transition-all font-bold text-slate-800"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -86,20 +87,21 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
                 <button 
                    type="button"
                    onClick={() => setShowPassword(!showPassword)}
-                   className="absolute right-4 top-3.5 text-gray-400 hover:text-brand-accent transition"
+                   className="absolute right-4 top-4 text-gray-300 hover:text-brand-accent transition"
                 >
                    {showPassword ? <Icons.Smile size={18} /> : <Icons.Smile size={18} className="opacity-40" />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="w-full bg-gray-900 text-white font-black py-4 rounded-2xl shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest text-xs">
-              {loading ? 'Validando...' : 'Acessar Painel'}
+            <button type="submit" disabled={loading} className="w-full bg-brand-blue text-white font-black py-5 rounded-2xl shadow-xl hover:bg-black transition-all active:scale-95 uppercase tracking-widest text-xs">
+              {loading ? 'Validando...' : 'Acessar Painel Central'}
             </button>
           </form>
           
-          <div className="mt-10 pt-8 border-t border-gray-50 text-center">
-            <Link to="/login" className="text-[10px] font-black text-gray-300 hover:text-brand-accent uppercase tracking-widest transition">Voltar ao Portal do Morador</Link>
+          <div className="mt-10 pt-8 border-t border-gray-50 text-center space-y-4">
+            <Link to="/staff/register" className="block text-[10px] font-black text-brand-accent hover:underline uppercase tracking-widest transition">Novo Gestor? Criar Primeiro Acesso</Link>
+            <Link to="/login" className="block text-[10px] font-black text-gray-300 hover:text-brand-blue uppercase tracking-widest transition">Voltar ao Portal do Morador</Link>
           </div>
         </div>
       </div>

@@ -12,16 +12,18 @@ const AdminRequests: React.FC = () => {
   const [filterText, setFilterText] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
+  const loadData = async (showLoading = true) => {
+    if (showLoading) setLoading(true);
     const data = await db.getServiceRequests();
     setRequests(data);
-    setLoading(false);
+    if (showLoading) setLoading(false);
   };
+
+  useEffect(() => {
+    loadData();
+    const interval = setInterval(() => loadData(false), 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const filtered = requests.filter(r => {
     const isRightScope = activeTab === 'condo' ? !r.is_private : r.is_private;
@@ -32,16 +34,18 @@ const AdminRequests: React.FC = () => {
     return isRightScope && matchesText;
   });
 
-  const condoPendingCount = requests.filter(r => !r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
-  const residentPendingCount = requests.filter(r => r.is_private && r.status === RequestStatus.PENDING_APPROVAL).length;
+  // Contador de alertas: O Admin precisa agir se for Novo (Triagem) OU Aprovado pelo Cliente (P/ Iniciar)
+  const condoTriageCount = requests.filter(r => !r.is_private && (r.status === RequestStatus.PENDING_APPROVAL || r.status === RequestStatus.BUDGET_APPROVED)).length;
+  const residentTriageCount = requests.filter(r => r.is_private && (r.status === RequestStatus.PENDING_APPROVAL || r.status === RequestStatus.BUDGET_APPROVED)).length;
 
   const getStatusColor = (status: RequestStatus) => {
     switch (status) {
-      case RequestStatus.COMPLETED: return 'bg-emerald-50 text-emerald-700 border-emerald-100';
-      case RequestStatus.IN_PROGRESS: return 'bg-brand-accent/10 text-brand-blue border-brand-accent/20';
-      case RequestStatus.PENDING_APPROVAL: return 'bg-orange-50 text-orange-700 border-orange-100';
-      case RequestStatus.WAITING_BUDGET_APPROVAL: return 'bg-indigo-50 text-indigo-700 border-indigo-100';
-      case RequestStatus.CANCELED: return 'bg-red-50 text-red-700 border-red-100';
+      case RequestStatus.COMPLETED: return 'bg-emerald-500 text-white border-emerald-600';
+      case RequestStatus.IN_PROGRESS: return 'bg-brand-accent text-brand-blue border-brand-accent';
+      case RequestStatus.BUDGET_APPROVED: return 'bg-emerald-100 text-emerald-800 border-emerald-500 ring-2 ring-emerald-500/20 font-black';
+      case RequestStatus.PENDING_APPROVAL: return 'bg-orange-50 text-orange-700 border-orange-200';
+      case RequestStatus.WAITING_BUDGET_APPROVAL: return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      case RequestStatus.CANCELED: return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-slate-100 text-slate-700 border-slate-200';
     }
   };
@@ -59,7 +63,7 @@ const AdminRequests: React.FC = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
            <h1 className="text-3xl font-black font-heading text-slate-900 tracking-tight">Central de <span className="text-brand-accent">Chamados</span></h1>
-           <p className="text-slate-500 text-sm font-medium">Gestão global de todas as solicitações técnicas da rede.</p>
+           <p className="text-slate-500 text-sm font-medium">Gestão global de todas as solicitações técnicas.</p>
         </div>
         <div className="flex bg-slate-200 p-1.5 rounded-2xl border border-slate-300 w-full md:w-fit shadow-sm">
            <button 
@@ -67,9 +71,9 @@ const AdminRequests: React.FC = () => {
              className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'condo' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}
            >
               Áreas Comuns
-              {condoPendingCount > 0 && (
+              {condoTriageCount > 0 && (
                 <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                  {condoPendingCount}
+                  {condoTriageCount}
                 </span>
               )}
            </button>
@@ -78,9 +82,9 @@ const AdminRequests: React.FC = () => {
              className={`flex-1 md:flex-none px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${activeTab === 'resident' ? 'bg-brand-blue text-white shadow-premium' : 'text-slate-600 hover:text-slate-900'}`}
            >
               Moradores
-              {residentPendingCount > 0 && (
+              {residentTriageCount > 0 && (
                 <span className="bg-red-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                  {residentPendingCount}
+                  {residentTriageCount}
                 </span>
               )}
            </button>
@@ -101,27 +105,24 @@ const AdminRequests: React.FC = () => {
               <tr>
                 <th className="px-8 py-6">Identificação / Localização</th>
                 <th className="px-8 py-6">Atendimento</th>
-                <th className="px-8 py-6">Prioridade</th>
                 <th className="px-8 py-6">Status / Atualização</th>
                 <th className="px-8 py-6">Investimento</th>
                 <th className="px-8 py-6 text-right">Ação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {loading ? (
-                <tr><td colSpan={6} className="px-8 py-20 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></td></tr>
+              {loading && requests.length === 0 ? (
+                <tr><td colSpan={5} className="px-8 py-20 text-center"><Icons.Loader className="animate-spin inline text-brand-accent" size={32} /></td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={6} className="px-8 py-20 text-center font-black uppercase text-slate-400 italic">Nenhum chamado localizado.</td></tr>
+                <tr><td colSpan={5} className="px-8 py-20 text-center font-black uppercase text-slate-400 italic">Nenhum chamado localizado.</td></tr>
               ) : (
                 filtered.map(r => (
-                  <tr key={r.id} className="hover:bg-slate-50/50 cursor-pointer group transition-colors" onClick={() => navigate(`/admin/request/${r.id}`)}>
+                  <tr key={r.id} className={`hover:bg-slate-50/50 cursor-pointer group transition-colors ${r.status === RequestStatus.BUDGET_APPROVED ? 'bg-emerald-50/30' : ''}`} onClick={() => navigate(`/admin/request/${r.id}`)}>
                     <td className="px-8 py-6">
                       <p className="text-[11px] font-black text-brand-blue mb-1.5 uppercase tracking-wider">#{r.protocol}</p>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-[10px] text-slate-900 font-black uppercase tracking-tight flex items-center gap-1.5">
-                          <Icons.Building size={12} className="text-brand-accent" /> {r.condo_name}
-                        </p>
-                      </div>
+                      <p className="text-[10px] text-slate-900 font-black uppercase tracking-tight flex items-center gap-1.5">
+                        <Icons.Building size={12} className="text-brand-accent" /> {r.condo_name}
+                      </p>
                     </td>
                     <td className="px-8 py-6">
                       <p className="font-black text-slate-900 text-sm mb-1">{r.type}</p>
@@ -130,14 +131,9 @@ const AdminRequests: React.FC = () => {
                       </p>
                     </td>
                     <td className="px-8 py-6">
-                       <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest ${getPriorityColor(r.priority)}`}>
-                          <Icons.AlertTriangle size={14} /> {r.priority}
-                       </div>
-                    </td>
-                    <td className="px-8 py-6">
                       <div className="flex flex-col gap-2">
-                        <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm transition-colors duration-500 w-fit ${getStatusColor(r.status)}`}>
-                          {r.status}
+                        <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm w-fit ${getStatusColor(r.status)}`}>
+                          {r.status === RequestStatus.BUDGET_APPROVED ? 'Aprovado (Iniciar)' : r.status}
                         </span>
                         <span className="text-[9px] font-black text-slate-400 uppercase flex items-center gap-1 ml-1">
                            <Icons.Clock size={10} className="text-brand-accent" />
@@ -155,7 +151,7 @@ const AdminRequests: React.FC = () => {
                         )}
                     </td>
                     <td className="px-8 py-6 text-right">
-                       <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-brand-blue group-hover:text-white transition-all border border-slate-100">
+                       <div className={`inline-flex items-center justify-center w-10 h-10 rounded-xl transition-all border ${r.status === RequestStatus.BUDGET_APPROVED ? 'bg-emerald-500 text-white border-emerald-600' : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-brand-blue group-hover:text-white'}`}>
                           <Icons.ArrowRight size={18} />
                        </div>
                     </td>
@@ -170,5 +166,4 @@ const AdminRequests: React.FC = () => {
   );
 };
 
-// Fix: Added missing default export
 export default AdminRequests;

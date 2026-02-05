@@ -1,67 +1,64 @@
 
 -- ========================================================
--- SCRIPT DE CORREÇÃO E ATUALIZAÇÃO - FACILITIESCON
+-- SCRIPT DE CORREÇÃO DE POLÍTICAS RLS - FACILITIESCON
 -- Execute este script no SQL Editor do seu Supabase
 -- ========================================================
 
--- 1. Garante que a tabela de perfis tem os campos necessários
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS condo_name TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS block TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS apartment TEXT;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_validated BOOLEAN DEFAULT false;
+-- Habilitar RLS em tabelas críticas
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.service_requests ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
--- 2. Garante que a tabela de chamados tem as colunas para o Laudo Técnico e Orçamento
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS budget_value NUMERIC(10,2);
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS budget_description TEXT;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS technical_report TEXT;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS photos_before TEXT[];
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS photos_after TEXT[];
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS professional_id UUID;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS professional_name TEXT;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS professional_cpf TEXT;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS professional_photo TEXT;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT false;
-ALTER TABLE public.service_requests ADD COLUMN IF NOT EXISTS unit_info TEXT;
+-- ========================================================
+-- POLÍTICAS PARA PROFILES
+-- ========================================================
+DROP POLICY IF EXISTS "Perfis visíveis por autenticados" ON public.profiles;
+CREATE POLICY "Perfis visíveis por autenticados" 
+ON public.profiles FOR SELECT USING (auth.role() = 'authenticated');
 
--- 3. Criação da tabela de configurações da empresa (caso não exista)
-CREATE TABLE IF NOT EXISTS public.company_settings (
-    id TEXT PRIMARY KEY,
-    company_name TEXT NOT NULL,
-    cnpj TEXT NOT NULL,
-    address TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    email TEXT NOT NULL,
-    logo TEXT,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+DROP POLICY IF EXISTS "Usuários editam próprio perfil" ON public.profiles;
+CREATE POLICY "Usuários editam próprio perfil" 
+ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- ========================================================
+-- POLÍTICAS PARA SERVICE_REQUESTS
+-- ========================================================
+DROP POLICY IF EXISTS "Ver chamados" ON public.service_requests;
+CREATE POLICY "Ver chamados" 
+ON public.service_requests FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Criar chamados" ON public.service_requests;
+CREATE POLICY "Criar chamados" 
+ON public.service_requests FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Admins atualizam chamados" ON public.service_requests;
+CREATE POLICY "Admins atualizam chamados" 
+ON public.service_requests FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- 4. Criação da tabela de profissionais (caso não exista)
-CREATE TABLE IF NOT EXISTS public.professionals (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL,
-    cpf TEXT,
-    phone TEXT,
-    specialty TEXT,
-    active BOOLEAN DEFAULT true,
-    photo TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+-- ========================================================
+-- POLÍTICAS PARA CHAT_MESSAGES (CORREÇÃO DO ERRO 403)
+-- ========================================================
+DROP POLICY IF EXISTS "Ver mensagens" ON public.chat_messages;
+CREATE POLICY "Ver mensagens" 
+ON public.chat_messages FOR SELECT USING (auth.role() = 'authenticated');
 
--- 5. Garante que as permissões de acesso (RLS) estão desativadas para o protótipo
--- (Ou configure as políticas conforme sua necessidade de produção)
-ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.service_requests DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.request_timeline DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.chat_messages DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.notifications DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.company_settings DISABLE ROW LEVEL SECURITY;
-ALTER TABLE public.professionals DISABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Enviar mensagens" ON public.chat_messages;
+CREATE POLICY "Enviar mensagens" 
+ON public.chat_messages FOR INSERT WITH CHECK (auth.uid() = user_id);
 
--- 6. COMANDO CRÍTICO: Recarrega o cache do PostgREST para reconhecer as novas colunas
+-- ========================================================
+-- POLÍTICAS PARA NOTIFICAÇÕES
+-- ========================================================
+DROP POLICY IF EXISTS "Ver próprias notificações" ON public.notifications;
+CREATE POLICY "Ver próprias notificações" 
+ON public.notifications FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Marcar como lida" ON public.notifications;
+CREATE POLICY "Marcar como lida" 
+ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
+
+-- Recarrega o cache do PostgREST
 NOTIFY pgrst, 'reload schema';
-
--- Mensagem de confirmação para o log
-DO $$ 
-BEGIN 
-    RAISE NOTICE 'Esquema FacilitiesCON atualizado e cache recarregado com sucesso.';
-END $$;
