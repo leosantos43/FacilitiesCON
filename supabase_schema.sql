@@ -1,7 +1,6 @@
 
 -- ========================================================
--- SCRIPT DE CORREÇÃO DE POLÍTICAS RLS - FACILITIESCON
--- Execute este script no SQL Editor do seu Supabase
+-- SCRIPT DE CONFIGURAÇÃO DE POLÍTICAS RLS - FACILITIESCON
 -- ========================================================
 
 -- Habilitar RLS em tabelas críticas
@@ -21,6 +20,13 @@ DROP POLICY IF EXISTS "Usuários editam próprio perfil" ON public.profiles;
 CREATE POLICY "Usuários editam próprio perfil" 
 ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
+-- Permitir que Admins atualizem qualquer perfil (para validar moradores/síndicos)
+DROP POLICY IF EXISTS "Admins atualizam qualquer perfil" ON public.profiles;
+CREATE POLICY "Admins atualizam qualquer perfil" 
+ON public.profiles FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
 -- ========================================================
 -- POLÍTICAS PARA SERVICE_REQUESTS
 -- ========================================================
@@ -39,7 +45,7 @@ ON public.service_requests FOR UPDATE USING (
 );
 
 -- ========================================================
--- POLÍTICAS PARA CHAT_MESSAGES (CORREÇÃO DO ERRO 403)
+-- POLÍTICAS PARA CHAT_MESSAGES
 -- ========================================================
 DROP POLICY IF EXISTS "Ver mensagens" ON public.chat_messages;
 CREATE POLICY "Ver mensagens" 
@@ -59,6 +65,13 @@ ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 DROP POLICY IF EXISTS "Marcar como lida" ON public.notifications;
 CREATE POLICY "Marcar como lida" 
 ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
+
+-- Permitir que Admins enviem notificações (necessário para avisos de sistema e validação)
+DROP POLICY IF EXISTS "Admins criam notificações" ON public.notifications;
+CREATE POLICY "Admins criam notificações" 
+ON public.notifications FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
 
 -- Recarrega o cache do PostgREST
 NOTIFY pgrst, 'reload schema';

@@ -8,9 +8,7 @@ import { db } from './services/mockSupabase';
 // Páginas Públicas
 import Home from './pages/public/Home';
 import ResidentLogin from './pages/public/Login';
-import ResidentRegister from './pages/public/Register';
 import AdminLogin from './pages/public/AdminLogin';
-import AdminRegister from './pages/public/AdminRegister'; // Nova Página
 import HowItWorks from './pages/public/HowItWorks';
 import About from './pages/public/About';
 
@@ -85,22 +83,11 @@ const App: React.FC = () => {
           )
         } />
         
-        <Route path="/register" element={<PublicLayout><ResidentRegister /></PublicLayout>} />
-        
         <Route path="/staff" element={
           !user ? (
             <PublicLayout><AdminLogin onLogin={handleLogin} /></PublicLayout>
           ) : (
             <Navigate to={user.role === UserRole.ADMIN ? "/admin" : (user.role === UserRole.SYNDIC ? "/app" : "/resident")} />
-          )
-        } />
-
-        {/* Nova Rota de Registro Admin */}
-        <Route path="/staff/register" element={
-          !user ? (
-            <PublicLayout><AdminRegister /></PublicLayout>
-          ) : (
-            <Navigate to="/admin" />
           )
         } />
 

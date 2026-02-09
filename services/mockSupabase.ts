@@ -109,9 +109,10 @@ class DatabaseAuthService {
     if (error) throw new Error(error.message);
   }
 
-  async changePassword(userId: string, newPassword: string): Promise<boolean> {
+  async changePassword(userId: string, newPassword: string): Promise<{success: boolean, error?: string}> {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    return !error;
+    if (error) return { success: false, error: error.message };
+    return { success: true };
   }
 
   async getServiceRequests(userId?: string, role?: UserRole, condoName?: string): Promise<ServiceRequest[]> {

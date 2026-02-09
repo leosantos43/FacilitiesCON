@@ -100,7 +100,6 @@ const AdminLogin: React.FC<LoginProps> = ({ onLogin }) => {
           </form>
           
           <div className="mt-10 pt-8 border-t border-gray-50 text-center space-y-4">
-            <Link to="/staff/register" className="block text-[10px] font-black text-brand-accent hover:underline uppercase tracking-widest transition">Novo Gestor? Criar Primeiro Acesso</Link>
             <Link to="/login" className="block text-[10px] font-black text-gray-300 hover:text-brand-blue uppercase tracking-widest transition">Voltar ao Portal do Morador</Link>
           </div>
         </div>

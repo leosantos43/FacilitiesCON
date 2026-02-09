@@ -18,6 +18,8 @@ import {
   Users,
   MessageSquare,
   TrendingUp,
+  // Fix: Added TrendingDown to resolve Property 'TrendingDown' does not exist error in Home.tsx
+  TrendingDown,
   CheckCircle,
   Clock,
   AlertTriangle,
@@ -109,6 +111,8 @@ export const Icons = {
   Users,
   MessageSquare,
   TrendingUp,
+  // Fix: Added TrendingDown to exported Icons object
+  TrendingDown,
   CheckCircle,
   Clock,
   AlertTriangle,

@@ -57,7 +57,7 @@ const ResidentLogin: React.FC<LoginProps> = ({ onLogin }) => {
                 <Icons.Home size={32} />
              </div>
              <h1 className="text-3xl font-black font-heading text-white tracking-tighter">Portal do <span className="text-brand-accent">Morador</span></h1>
-             <p className="text-gray-400 text-[10px] uppercase font-black tracking-[0.3em] mt-3">Segurança e Agilidade</p>
+             <p className="text-gray-400 text-[10px] uppercase font-black tracking-[0.4em] mt-3">Segurança e Agilidade</p>
            </div>
         </div>
         
@@ -105,7 +105,6 @@ const ResidentLogin: React.FC<LoginProps> = ({ onLogin }) => {
              </button>
              
              <div className="text-center mt-8 space-y-4">
-                <p className="text-sm text-gray-500 font-medium">Ainda não tem acesso? <Link to="/register" className="text-brand-accent font-black hover:underline ml-1">Cadastre-se</Link></p>
                 <Link to="/staff" className="block text-[10px] font-black text-gray-300 uppercase tracking-widest hover:text-brand-blue">Acesso Gestão / Staff</Link>
              </div>
           </form>

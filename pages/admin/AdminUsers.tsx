@@ -10,6 +10,7 @@ const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [condos, setCondos] = useState<Condominium[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<UserTab>('all');
   const [filter, setFilter] = useState('');
   
@@ -93,11 +94,15 @@ const AdminUsers: React.FC = () => {
   };
 
   const handleValidate = async (userId: string) => {
+    setActionLoading(userId);
     try {
       await db.validateUser(userId);
       await loadData();
-    } catch (err) {
-      alert('Erro ao validar usuário.');
+    } catch (err: any) {
+      console.error(err);
+      alert('Erro ao validar usuário. Verifique as permissões de RLS no banco de dados.');
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -202,7 +207,15 @@ const AdminUsers: React.FC = () => {
                     </td>
                     <td className="px-8 py-6 text-right">
                        <div className="flex justify-end items-center gap-2">
-                         {u.is_validated === false && <button onClick={() => handleValidate(u.id)} className="p-3 bg-brand-green/10 text-brand-green rounded-xl hover:bg-brand-green hover:text-white transition-all shadow-sm"><Icons.CheckCircle size={18} /></button>}
+                         {u.is_validated === false && (
+                           <button 
+                             onClick={() => handleValidate(u.id)} 
+                             disabled={actionLoading === u.id}
+                             className="p-3 bg-brand-green/10 text-brand-green rounded-xl hover:bg-brand-green hover:text-white transition-all shadow-sm disabled:opacity-50"
+                           >
+                             {actionLoading === u.id ? <Icons.Loader className="animate-spin" size={18} /> : <Icons.CheckCircle size={18} />}
+                           </button>
+                         )}
                          <button onClick={() => handleOpenModal(u)} className="p-3 bg-blue-50 text-blue-600 rounded-xl hover:bg-brand-blue hover:text-white transition-all"><Icons.Edit2 size={18} /></button>
                          {u.role !== UserRole.ADMIN && <button onClick={(e) => handleDeleteUser(e, u)} className="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Icons.Trash size={18} /></button>}
                        </div>

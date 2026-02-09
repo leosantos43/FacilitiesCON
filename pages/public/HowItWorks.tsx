@@ -1,47 +1,71 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icons } from '../../components/Icons';
 
 const HowItWorks: React.FC = () => {
+  const [activeStep, setActiveStep] = useState<number>(0);
+
   const steps = [
     { 
       icon: Icons.Smartphone, 
-      title: "Solicitação Ágil", 
-      desc: "O morador ou síndico abre o chamado direto no navegador. Fotos e descrição detalhada garantem que o técnico já saiba o que fazer antes de chegar.",
-      num: "01"
+      title: "01. Solicitação Digital", 
+      desc: "Tudo começa com um clique. O morador ou síndico abre o chamado pelo celular, anexando fotos e vídeos da ocorrência.",
+      tech: "SISTEMA: Geração de Protocolo OS (Ordem de Serviço) com Timestamp via Blockchain.",
+      details: [
+        "Registro Georreferenciado",
+        "Anexo de Multimídia",
+        "Notificação Imediata via Push"
+      ]
     },
     { 
       icon: Icons.Cpu, 
-      title: "Triagem Inteligente", 
-      desc: "Nossa central técnica avalia a complexidade do reparo e designa o especialista certificado para a vertical exata (Elétrica, Hidráulica, etc).",
-      num: "02" 
+      title: "02. Triagem e Inteligência", 
+      desc: "Nossa central de engenharia analisa a complexidade. Não é apenas um agendamento, é uma análise técnica prévia.",
+      tech: "ENGINE: Algoritmo de priorização baseado na Matriz de Risco Predial (GUT).",
+      details: [
+        "Cálculo de Criticidade",
+        "Seleção de Especialista Certificado",
+        "SLA de Atendimento Definido"
+      ]
     },
     { 
       icon: Icons.Calendar, 
-      title: "Visita & Identificação", 
-      desc: "Agendamento preciso com confirmação via portal. O cliente recebe a foto e o perfil do profissional que realizará o atendimento.",
-      num: "03"
+      title: "03. Execução Controlada", 
+      desc: "O técnico chega ao local. O sistema monitora o tempo de execução e garante que as normas ABNT sejam seguidas.",
+      tech: "OPERACIONAL: Check-in via GPS e Checklist Digital de Conformidade Técnica.",
+      details: [
+        "Rastreio do Técnico em Tempo Real",
+        "Controle de Estoque de Materiais",
+        "Segurança do Trabalho (EPI Digital)"
+      ]
     },
     { 
       icon: Icons.ShieldCheck, 
-      title: "Execução & Garantia", 
-      desc: "O serviço é realizado e documentado digitalmente. A garantia técnica FacilitiesCON é ativada automaticamente após a emissão do laudo.",
-      num: "04"
+      title: "04. Laudo e Garantia", 
+      desc: "Serviço finalizado? O sistema gera um laudo técnico completo com fotos e parecer do engenheiro responsável.",
+      tech: "DOCS: Emissão de PDF com Assinatura Digital e ART de Engenharia vinculada.",
+      details: [
+        "Relatório Fotográfico Antes/Depois",
+        "Certificado de Garantia Ativo",
+        "Histórico Eterno na Unidade"
+      ]
     }
   ];
 
-  const valueProps = [
-    { t: "Laudo Fotográfico", d: "Documentação completa de antes e depois.", i: Icons.Camera },
-    { t: "Certificação NR", d: "Equipes treinadas em NR-10, NR-35 e normas ABNT.", i: Icons.Shield },
-    { t: "Previsibilidade", d: "Orçamentos claros e sem custos surpresas.", i: Icons.TrendingUp },
-    { t: "SLA Garantido", d: "Atendimento emergencial em até 4 horas.", i: Icons.Clock }
-  ];
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const whatsappUrl = "https://wa.me/5511988887777?text=Olá! Gostaria de falar com um consultor da FacilitiesCON.";
 
   return (
     <div className="bg-white selection:bg-brand-accent selection:text-brand-blue">
       {/* Hero Processo */}
-      <section className="bg-brand-dark text-white py-32 relative overflow-hidden">
+      <section className="bg-brand-dark text-white py-32 lg:py-48 relative overflow-hidden">
         <div className="absolute inset-0 bg-brand-blue opacity-20"></div>
         <div className="absolute -right-20 -top-20 w-96 h-96 bg-brand-accent rounded-full blur-[150px] opacity-10"></div>
         
@@ -50,37 +74,94 @@ const HowItWorks: React.FC = () => {
              O Método <span className="text-brand-accent">FacilitiesCON</span>.
            </h1>
            <p className="text-xl text-slate-400 leading-relaxed mb-12 font-medium">
-             Transformamos a manutenção predial em uma experiência digital, transparente e resolutiva. Conheça as fases da nossa inteligência operacional de ponta a ponta.
+             Saiba como levamos a engenharia predial para a era digital. Um passo a passo da nossa excelência operacional.
            </p>
            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-             <Link to="/login" className="bg-brand-accent text-brand-blue font-black py-5 px-12 rounded-2xl shadow-glow hover:scale-105 transition-all uppercase text-xs tracking-widest">
-               Ver Portal na Prática
-             </Link>
-             <a href="#fluxo" className="bg-white/5 border border-white/10 text-white font-black py-5 px-12 rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest">
-               Explorar Fluxograma
+             <a href={whatsappUrl} target="_blank" className="bg-brand-accent text-brand-blue font-black py-5 px-12 rounded-2xl shadow-glow hover:scale-105 transition-all uppercase text-xs tracking-widest flex items-center justify-center gap-3">
+               <Icons.MessageCircle size={18} /> Entre em contato agora
              </a>
+             <button 
+               onClick={() => scrollToSection('fluxo')}
+               className="bg-white/5 border border-white/10 text-white font-black py-5 px-12 rounded-2xl hover:bg-white/10 transition-all uppercase text-xs tracking-widest flex items-center justify-center gap-3"
+             >
+               Explorar Passo a Passo <Icons.ArrowRight size={18} />
+             </button>
            </div>
         </div>
       </section>
 
-      {/* Visual Step Timeline */}
-      <section id="fluxo" className="py-40 bg-white">
-        <div className="container mx-auto px-6">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative">
-             <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0"></div>
-             
-             {steps.map((step, idx) => (
-               <div key={idx} className="relative z-10 group">
-                  <div className="mb-10 flex items-center justify-between lg:block">
-                    <span className="text-7xl font-black text-slate-100 group-hover:text-brand-accent/20 transition-colors duration-500 leading-none">{step.num}</span>
-                    <div className="w-20 h-20 bg-white rounded-3xl shadow-premium flex items-center justify-center text-brand-blue border border-slate-100 lg:mt-[-40px] group-hover:bg-brand-blue group-hover:text-white transition-all duration-500">
-                      <step.icon size={36} />
+      {/* Passo a Passo Interativo (Fluxograma) */}
+      <section id="fluxo" className="py-40 bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+          <div className="h-full w-full" style={{ backgroundImage: 'radial-gradient(#0F172A 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10">
+           <div className="text-center mb-24 space-y-4">
+              <h2 className="text-brand-accent text-[11px] font-black uppercase tracking-[0.5em]">Jornada do Atendimento</h2>
+              <h3 className="text-4xl md:text-6xl font-black text-brand-blue font-heading tracking-tighter italic uppercase">Fluxograma de Excelência</h3>
+           </div>
+
+           <div className="flex flex-col lg:flex-row gap-12 items-start">
+              {/* Menu de Passos */}
+              <div className="w-full lg:w-1/3 space-y-4">
+                 {steps.map((step, idx) => (
+                   <button 
+                     key={idx}
+                     onClick={() => setActiveStep(idx)}
+                     className={`w-full text-left p-8 rounded-[2rem] transition-all duration-500 border flex items-center gap-6 group ${
+                       activeStep === idx 
+                         ? 'bg-brand-blue text-white border-brand-blue shadow-premium translate-x-4' 
+                         : 'bg-white text-slate-400 border-slate-100 hover:border-brand-accent/30'
+                     }`}
+                   >
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        activeStep === idx ? 'bg-brand-accent text-brand-blue' : 'bg-slate-50 text-slate-300 group-hover:text-brand-accent'
+                      }`}>
+                         <step.icon size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className={`text-sm font-black uppercase tracking-wider ${activeStep === idx ? 'text-brand-accent' : 'text-slate-400'}`}>Passo {idx + 1}</h4>
+                        <p className={`font-black text-lg tracking-tight ${activeStep === idx ? 'text-white' : 'text-slate-900'}`}>{step.title.split('. ')[1]}</p>
+                      </div>
+                      <Icons.ArrowRight size={20} className={`transition-transform ${activeStep === idx ? 'translate-x-0' : '-translate-x-4 opacity-0'}`} />
+                   </button>
+                 ))}
+              </div>
+
+              {/* Detalhamento Visual do Passo */}
+              <div className="w-full lg:w-2/3 bg-white border border-slate-100 rounded-[4rem] p-10 md:p-20 shadow-premium min-h-[500px] flex flex-col justify-between animate-in fade-in slide-in-from-right-10 duration-500">
+                 <div className="space-y-12">
+                    <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                       <div className="space-y-6 max-w-lg">
+                          <h3 className="text-4xl md:text-5xl font-black text-brand-blue font-heading tracking-tighter italic uppercase leading-none">
+                            {steps[activeStep].title}
+                          </h3>
+                          <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                            {steps[activeStep].desc}
+                          </p>
+                       </div>
                     </div>
-                  </div>
-                  <h3 className="text-2xl font-black text-brand-blue mb-4 tracking-tighter">{step.title}</h3>
-                  <p className="text-slate-500 leading-relaxed font-medium text-sm">{step.desc}</p>
-               </div>
-             ))}
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                       {steps[activeStep].details.map((detail, dIdx) => (
+                         <div key={dIdx} className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <Icons.CheckCircle size={16} className="text-brand-accent shrink-0" />
+                            <span className="text-[10px] font-black uppercase text-slate-600 tracking-tight">{detail}</span>
+                         </div>
+                       ))}
+                    </div>
+                 </div>
+
+                 <div className="mt-16 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-end items-center gap-8">
+                    <button 
+                      onClick={() => setActiveStep((activeStep + 1) % steps.length)}
+                      className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-blue flex items-center gap-3 hover:text-brand-accent transition-colors"
+                    >
+                      Próximo Passo <Icons.ArrowRight size={16} />
+                    </button>
+                 </div>
+              </div>
            </div>
         </div>
       </section>
@@ -95,7 +176,7 @@ const HowItWorks: React.FC = () => {
                    Engenharia baseada <br/>em <span className="text-brand-accent">dados reais.</span>
                  </h2>
                  <p className="text-lg text-slate-400 font-medium leading-relaxed">
-                   Nossa plataforma não é apenas um portal de chamados. É um ecossistema de dados que permite ao síndico analisar tendências de manutenção, prever falhas e otimizar o orçamento condominial com precisão matemática.
+                   Nossa plataforma permite ao síndico analisar tendências de manutenção, prever falhas e otimizar o orçamento condominial com precisão matemática.
                  </p>
                  <div className="grid grid-cols-2 gap-6">
                     <div className="p-6 bg-white/5 rounded-[2rem] border border-white/10">
@@ -111,8 +192,9 @@ const HowItWorks: React.FC = () => {
                  </div>
               </div>
               <div className="w-full lg:w-1/2">
-                 <div className="bg-brand-accent/10 p-10 rounded-[4rem] border border-brand-accent/20 animate-float">
+                 <div className="bg-brand-accent/10 p-10 rounded-[4rem] border border-brand-accent/20 animate-float text-center">
                     <Icons.LayoutDashboard size={120} className="text-brand-accent opacity-20 mx-auto" />
+                    <p className="mt-8 text-brand-accent font-black uppercase tracking-[0.3em] text-[10px]">Dashboard de Controle Ativo</p>
                  </div>
               </div>
            </div>
@@ -150,7 +232,7 @@ const HowItWorks: React.FC = () => {
                </div>
 
                <div className="w-full lg:w-1/2 relative">
-                  <div className="bg-brand-blue rounded-[4rem] p-12 md:p-20 text-white shadow-premium relative">
+                  <div className="bg-brand-blue rounded-[4rem] p-12 md:p-20 text-white shadow-premium relative overflow-hidden">
                      <Icons.Quote className="absolute top-10 right-10 text-brand-accent opacity-20" size={80} />
                      <h4 className="text-2xl font-black mb-10 italic">Compromisso FacilitiesCON</h4>
                      <ul className="space-y-6">
@@ -167,49 +249,22 @@ const HowItWorks: React.FC = () => {
                            <span>Atendimento por engenheiros especializados e registrados no CREA.</span>
                         </li>
                      </ul>
-                     <div className="mt-12 pt-10 border-t border-white/10 flex items-center gap-6">
-                        <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-brand-accent"><Icons.Award size={24} /></div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-tight">Selo de Qualidade <br/> FacilitiesCON</p>
-                     </div>
                   </div>
                </div>
             </div>
          </div>
       </section>
 
-      {/* FAQ Técnico */}
-      <section className="py-32 bg-slate-900 text-white">
-        <div className="container mx-auto px-6 max-w-4xl">
-           <div className="text-center mb-24">
-              <h3 className="text-3xl md:text-5xl font-black font-heading tracking-tighter italic">Dúvidas Técnicas Frequentes.</h3>
-           </div>
-           
-           <div className="space-y-6">
-              {[
-                { q: "Quais condomínios podem ser parceiros?", a: "Atendemos empreendimentos residenciais e comerciais de todos os portes. O condomínio precisa apenas realizar o credenciamento conosco para liberar o acesso aos moradores." },
-                { q: "Como funciona a garantia dos reparos?", a: "Cada laudo emitido possui um código de garantia único. Em caso de reincidência, o chamado é reaberto sem custos adicionais em até 48 horas úteis." },
-                { q: "Os técnicos são credenciados pela FacilitiesCON?", a: "Sim, operamos com equipe própria CLT e parceiros estratégicos homologados que passam por auditoria técnica e de segurança mensal rigorosa." },
-                { q: "A plataforma funciona em qualquer celular?", a: "Sim! Nossa plataforma é um WebApp otimizado. Não requer instalação pesada e funciona em qualquer smartphone moderno com internet." }
-              ].map((faq, i) => (
-                <div key={i} className="bg-white/5 p-8 rounded-3xl border border-white/10 hover:bg-white/10 transition-all">
-                   <h4 className="text-lg font-black text-brand-accent mb-4">{faq.q}</h4>
-                   <p className="text-slate-400 font-medium text-sm leading-relaxed">{faq.a}</p>
-                </div>
-              ))}
-           </div>
-        </div>
-      </section>
-
       {/* CTA Final */}
       <section className="py-32 bg-brand-accent">
          <div className="container mx-auto px-6 text-center space-y-10">
-            <h2 className="text-4xl md:text-6xl font-black text-brand-blue font-heading tracking-tighter leading-none italic">Ficou claro? Vamos começar.</h2>
+            <h2 className="text-4xl md:text-6xl font-black text-brand-blue font-heading tracking-tighter leading-none italic uppercase">Ficou claro? Vamos profissionalizar seu prédio.</h2>
             <p className="text-brand-blue/70 text-lg font-medium max-w-2xl mx-auto">
                Junte-se a mais de 120 condomínios que já profissionalizaram suas manutenções com a tecnologia FacilitiesCON.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-               <Link to="/register" className="bg-brand-blue text-white px-12 py-5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-premium hover:scale-105 transition-all">Cadastrar Condomínio</Link>
-               <a href="https://wa.me/5511988887777" className="bg-white text-brand-blue px-12 py-5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-sm hover:bg-slate-50 transition-all">Falar com Consultor</a>
+               <a href={whatsappUrl} target="_blank" className="bg-brand-blue text-white px-12 py-5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-premium hover:scale-105 transition-all">Entre em contato agora</a>
+               <Link to="/register" className="bg-white text-brand-blue px-12 py-5 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-sm hover:bg-slate-50 transition-all">Solicitar Demonstração</Link>
             </div>
          </div>
       </section>
